@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PREFIX_PATHS = ["/login", "/signup"];
+const PUBLIC_PREFIX_PATHS = ["/login", "/signup", "/forgot-password"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -32,6 +32,22 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+
+  // Let auth callbacks and API routes pass through without redirection
+  if (path.startsWith("/auth") || path.startsWith("/api")) {
+    return supabaseResponse;
+  }
+
+  // Allow authenticated users to stay on /reset-password to set their new password
+  if (path.startsWith("/reset-password")) {
+    if (!user) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/forgot-password";
+      return NextResponse.redirect(url);
+    }
+    return supabaseResponse;
+  }
+
   const isPublicPath = path === "/" || PUBLIC_PREFIX_PATHS.some((p) => path.startsWith(p));
 
   if (!user && !isPublicPath) {

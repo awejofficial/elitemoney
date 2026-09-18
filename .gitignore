@@ -49,3 +49,5 @@ next-env.d.ts
 /public/worker-*.js.map
 
 docs/.npm-cache/
+.vercel
+.env*

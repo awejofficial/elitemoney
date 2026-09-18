@@ -4,7 +4,7 @@ Track income, expenses, and money owed between friends and family — all in one
 
 PEIT is a **Progressive Web App (PWA)**: no app store needed. Add it to your phone's home screen straight from the browser — it runs full-screen, works offline, and can send due-date reminders via push notifications.
 
-**Owner:** Dasari Sambasiva Naidu · **Status:** v1 feature-complete (dev)
+**Status:** v1 feature-complete (dev)
 
 ---
 

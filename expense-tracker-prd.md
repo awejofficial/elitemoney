@@ -1,7 +1,6 @@
 # PRD: Personal Expense & Income Tracker App
 
-**Owner:** Dasari Sambasiva Naidu
-**Version:** 1.0 (Draft)
+**Status:** Approved v1.0 (Draft)
 **Inspired by:** Money Manager (realbyteapps.com)
 
 ---

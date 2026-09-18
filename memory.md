@@ -11,7 +11,6 @@
 | Name | PEIT — Personal Expense & Income Tracker |
 | Type | Progressive Web App (PWA) |
 | Platform | Web / mobile-first (iPhone Safari Add to Home Screen) |
-| Owner | Dasari Sambasiva Naidu |
 | Version | v1 feature-complete (development) |
 | Stack | Next.js 16.3.5 · React 19.2.8 · TypeScript strict · Tailwind CSS v4 · Supabase |
 | PWA | `next-pwa` + hand-written Workbox service worker (`worker/index.js`) |
