@@ -1,28 +1,17 @@
-<p align="center">
-  <img src="https://finapp.ilko.me/logo.png" alt="Finapp Logo" width="320" />
-</p>
+# EliteMoney — Personal Finance Tracker
 
-# Finapp - Open Source Finance App
+> Your money, your control — anywhere, anytime.
 
-**English** | [Русский](./README.ru.md)
+**EliteMoney** is a local-first personal finance application with offline SQLite storage, real-time sync across devices via PowerSync & Supabase, contact lending ledger, recurring transaction engine, and biometric security.
 
-> Your money, your control - anywhere, anytime.
+## Setup, Deployment & Troubleshooting
+For the complete deployment guide (Vercel, Supabase, PowerSync) and troubleshooting solutions, see:
+👉 **[Setup & Troubleshooting Guide](./docs/SETUP_AND_TROUBLESHOOTING.md)**
+👉 **[Complete Supabase SQL Script](./app/supabase/setup_complete.sql)**
 
-**Finapp** helps you easily track and manage personal finances. The repository is a pnpm monorepo with the Nuxt application and the documentation site.
+---
 
-## Live Demo
-
-[finapp.ilko.me](https://finapp.ilko.me/)
-
-## Documentation
-
-[finapp-docs.ilko.me](https://finapp-docs.ilko.me/)
-
-## Knowledge Graph
-
-Interactive map of the codebase architecture: [finapp-graph.ilko.me/en](https://finapp-graph.ilko.me/en/)
-
-## Why Finapp?
+## Why EliteMoney?
 
 - **Simple**: No clutter, no distractions - just your transactions and balances.
 - **Fast**: Works offline and syncs instantly across devices.
