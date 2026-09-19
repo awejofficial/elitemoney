@@ -132,6 +132,12 @@ export const usePeopleStore = defineStore('people', () => {
     entries.value[id].status = entries.value[id].status === 'open' ? 'paid' : 'open'
   }
 
+  function updateEntry(id: string, data: Partial<Omit<LendingEntry, 'id'>>) {
+    if (!entries.value[id])
+      return
+    entries.value[id] = { ...entries.value[id], ...data }
+  }
+
   function deleteEntry(id: string) {
     delete entries.value[id]
   }
@@ -201,6 +207,7 @@ export const usePeopleStore = defineStore('people', () => {
     updatePerson,
     deletePerson,
     addEntry,
+    updateEntry,
     toggleEntryStatus,
     deleteEntry,
     getEntriesForPerson,

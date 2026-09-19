@@ -77,51 +77,63 @@ const emit = defineEmits<{
           </div>
         </div>
 
-        <Amount
-          v-if="trnItem.type !== TrnType.Transfer"
-          :amount="trnItem.amount"
-          :currencyCode="trnItem.wallet?.currency"
-          :isShowMinus="trnItem.type === TrnType.Expense"
-          :isShowPlus="trnItem.type === TrnType.Income"
-          :type="trnItem.type"
-          align="right"
-          class="grow"
-          colorize="income"
-          variant="sm"
-        />
+        <div class="flex items-center gap-1.5 grow justify-end">
+          <Amount
+            v-if="trnItem.type !== TrnType.Transfer"
+            :amount="trnItem.amount"
+            :currencyCode="trnItem.wallet?.currency"
+            :isShowMinus="trnItem.type === TrnType.Expense"
+            :isShowPlus="trnItem.type === TrnType.Income"
+            :type="trnItem.type"
+            align="right"
+            colorize="income"
+            variant="sm"
+          />
 
-        <!-- Transfer -->
-        <div
-          v-if="trnItem.type === TrnType.Transfer"
-          class="grid gap-1"
-        >
-          <div class="text-toned flex items-center gap-1 text-sm leading-none">
-            <span class="font-semibold">{{ trnItem.expenseWallet.name }}</span>
-            <Icon name="lucide:move-right" size="16" />
-            <span class="font-semibold">{{ trnItem.incomeWallet.name }}</span>
-          </div>
+          <!-- Transfer -->
+          <div
+            v-if="trnItem.type === TrnType.Transfer"
+            class="grid gap-1"
+          >
+            <div class="text-toned flex items-center gap-1 text-sm leading-none">
+              <span class="font-semibold">{{ trnItem.expenseWallet.name }}</span>
+              <Icon name="lucide:move-right" size="16" />
+              <span class="font-semibold">{{ trnItem.incomeWallet.name }}</span>
+            </div>
 
-          <div class="flex flex-wrap gap-2">
-            <Amount
-              :amount="trnItem.expenseAmount"
-              :colorize="trnItem.incomeAmount === trnItem.expenseAmount ? undefined : 'expense'"
-              :currencyCode="trnItem.expenseWallet.currency"
-              :type="TrnType.Expense"
-              class="!flex items-center gap-2"
-              variant="sm"
-            />
-
-            <template v-if="trnItem.incomeAmount !== trnItem.expenseAmount">
+            <div class="flex flex-wrap gap-2">
               <Amount
-                :amount="trnItem.incomeAmount"
-                :currencyCode="trnItem.incomeWallet.currency"
-                :type="TrnType.Income"
-                colorize="income"
+                :amount="trnItem.expenseAmount"
+                :colorize="trnItem.incomeAmount === trnItem.expenseAmount ? undefined : 'expense'"
+                :currencyCode="trnItem.expenseWallet.currency"
+                :type="TrnType.Expense"
                 class="!flex items-center gap-2"
                 variant="sm"
               />
-            </template>
+
+              <template v-if="trnItem.incomeAmount !== trnItem.expenseAmount">
+                <Amount
+                  :amount="trnItem.incomeAmount"
+                  :currencyCode="trnItem.incomeWallet.currency"
+                  :type="TrnType.Income"
+                  colorize="income"
+                  class="!flex items-center gap-2"
+                  variant="sm"
+                />
+              </template>
+            </div>
           </div>
+
+          <!-- Edit button affordance -->
+          <button
+            v-if="!compact"
+            type="button"
+            :title="$t('base.edit')"
+            class="interactive shrink-0 flex size-6 items-center justify-center rounded text-muted/50 group-hover:text-highlighted hover:bg-elevated transition-colors"
+            @click.stop="emit('click')"
+          >
+            <Icon name="lucide:pencil" size="13" />
+          </button>
         </div>
       </div>
 

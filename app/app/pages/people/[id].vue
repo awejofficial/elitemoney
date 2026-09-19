@@ -17,13 +17,42 @@ const entries = computed(() => peopleStore.getEntriesForPerson(personId.value))
 
 useSeoMeta({
   title: computed(() => `${person.value?.name || 'Contact'} — EliteMoney`),
+  ogTitle: computed(() => `${person.value?.name || 'Contact'} — EliteMoney`),
 })
 
+// Modals state
 const isAddEntryOpen = ref(false)
+const isEditContactOpen = ref(false)
+const isOptionsOpen = ref(false)
+const isShowDeleteConfirm = ref(false)
+const isShowSettleConfirm = ref(false)
+
+const editName = ref('')
+const editPhone = ref('')
+
 const entryType = ref<LendingType>('lent')
 const entryAmount = ref<number | undefined>(undefined)
 const entryDesc = ref('')
 const entryDueDate = ref('')
+
+function openEditContact() {
+  if (!person.value)
+    return
+  editName.value = person.value.name
+  editPhone.value = person.value.phone || ''
+  isOptionsOpen.value = false
+  isEditContactOpen.value = true
+}
+
+function handleSaveContact() {
+  if (!editName.value.trim() || !person.value)
+    return
+  peopleStore.updatePerson(personId.value, {
+    name: editName.value.trim(),
+    phone: editPhone.value.trim() || undefined,
+  })
+  isEditContactOpen.value = false
+}
 
 function openAddEntry(type: LendingType) {
   entryType.value = type
@@ -50,17 +79,15 @@ function handleAddEntry() {
   isAddEntryOpen.value = false
 }
 
-function handleDeletePerson() {
-  if (!confirm(`Delete ${person.value?.name} and all associated entries?`))
-    return
+function handleDeletePersonConfirm() {
   peopleStore.deletePerson(personId.value)
+  isShowDeleteConfirm.value = false
   router.replace('/people')
 }
 
-function handleSettleAll() {
-  if (!confirm(`Mark all outstanding entries for ${person.value?.name} as paid/settled?`))
-    return
+function handleSettleAllConfirm() {
   peopleStore.settleAllForPerson(personId.value)
+  isShowSettleConfirm.value = false
 }
 
 function formatDate(timestamp: number) {
@@ -75,26 +102,56 @@ function formatDate(timestamp: number) {
 <template>
   <UiPage v-if="person">
     <UiHeader>
-      <div class="flex items-center gap-2">
-        <UButton
-          icon="i-lucide-arrow-left"
-          size="sm"
-          color="neutral"
-          variant="ghost"
-          to="/people"
-        />
-        <UiHeaderTitle>
-          {{ person.name }}
-        </UiHeaderTitle>
-      </div>
+      <NuxtLink to="/people" class="flex items-center">
+        <UiActionButton :ariaLabel="$t('base.back')">
+          <Icon name="lucide:chevron-left" size="24" />
+        </UiActionButton>
+      </NuxtLink>
+
+      <UiHeaderTitle>
+        {{ person.name }}
+      </UiHeaderTitle>
+
       <template #actions>
-        <UButton
-          icon="i-lucide-trash-2"
-          size="xs"
-          color="error"
-          variant="ghost"
-          @click="handleDeletePerson"
-        />
+        <BottomSheetOrDropdown
+          :isOpen="isOptionsOpen"
+          isShowCloseBtn
+          @closeModal="isOptionsOpen = false"
+          @openModal="isOptionsOpen = true"
+        >
+          <template #trigger>
+            <UiActionButton :ariaLabel="$t('base.moreOptions')">
+              <Icon name="lucide:ellipsis-vertical" size="20" />
+            </UiActionButton>
+          </template>
+
+          <template #content>
+            <div class="p-1 pt-3 pb-2 min-w-[200px]">
+              <UiHeaderLink
+                icon="lucide:pencil"
+                @click="openEditContact"
+              >
+                {{ t('people.edit') }}
+              </UiHeaderLink>
+
+              <UiHeaderLink
+                v-if="personBalance && personBalance.openEntriesCount > 0"
+                icon="lucide:check-check"
+                @click="isOptionsOpen = false; isShowSettleConfirm = true"
+              >
+                {{ t('people.settleAll') }}
+              </UiHeaderLink>
+
+              <UiHeaderLink
+                icon="lucide:trash-2"
+                class="text-error"
+                @click="isOptionsOpen = false; isShowDeleteConfirm = true"
+              >
+                {{ t('base.delete') }}
+              </UiHeaderLink>
+            </div>
+          </template>
+        </BottomSheetOrDropdown>
       </template>
     </UiHeader>
 
@@ -108,25 +165,28 @@ function formatDate(timestamp: number) {
 
           <div>
             <div class="text-xs font-medium text-muted">
-              {{ t('people.currentNetBalance', 'Net Balance') }}
+              {{ t('people.netBalance') }}
             </div>
-            <div
-              v-if="personBalance"
-              class="pt-1 text-3xl font-extrabold font-brand tracking-tight"
-              :class="personBalance.netBalance > 0 ? 'text-emerald-500' : personBalance.netBalance < 0 ? 'text-rose-500' : 'text-highlighted'"
-            >
-              <span v-if="personBalance.netBalance > 0">+</span>
-              {{ personBalance.netBalance }} {{ currenciesStore.base }}
+            <div v-if="personBalance" class="pt-1.5 flex justify-center">
+              <Amount
+                :amount="personBalance.netBalance"
+                :currencyCode="currenciesStore.base"
+                :colorize="personBalance.netBalance > 0 ? 'income' : personBalance.netBalance < 0 ? 'expense' : undefined"
+                :isShowPlus="personBalance.netBalance > 0"
+                :isShowMinus="personBalance.netBalance < 0"
+                variant="xl"
+                align="center"
+              />
             </div>
-            <div v-if="personBalance" class="text-xs pt-0.5">
-              <span v-if="personBalance.netBalance > 0" class="text-emerald-500 font-medium">
-                {{ person.name }} {{ t('people.owesYouFull', 'owes you this amount') }}
+            <div v-if="personBalance" class="text-xs pt-1">
+              <span v-if="personBalance.netBalance > 0" class="text-income font-medium">
+                {{ person.name }} {{ t('people.theyOweYou') }}
               </span>
-              <span v-else-if="personBalance.netBalance < 0" class="text-rose-500 font-medium">
-                {{ t('people.youOweFull', 'You owe') }} {{ person.name }} {{ t('people.thisAmount', 'this amount') }}
+              <span v-else-if="personBalance.netBalance < 0" class="text-expense font-medium">
+                {{ t('people.youOweThem') }} {{ person.name }}
               </span>
               <span v-else class="text-muted">
-                {{ t('people.allSettled', 'Everything is settled up!') }}
+                {{ t('people.settled') }}
               </span>
             </div>
           </div>
@@ -134,34 +194,34 @@ function formatDate(timestamp: number) {
           <!-- Quick Action Buttons -->
           <div class="flex flex-wrap items-center justify-center gap-2 pt-3">
             <UButton
-              icon="i-lucide-arrow-up-right"
+              icon="lucide:arrow-up-right"
               size="sm"
               color="primary"
               variant="solid"
               @click="openAddEntry('lent')"
             >
-              {{ t('people.lentMoney', 'Lend Money') }}
+              {{ t('people.lendMoney') }}
             </UButton>
 
             <UButton
-              icon="i-lucide-arrow-down-left"
+              icon="lucide:arrow-down-left"
               size="sm"
               color="neutral"
               variant="outline"
               @click="openAddEntry('borrowed')"
             >
-              {{ t('people.borrowedMoney', 'Borrow Money') }}
+              {{ t('people.borrowMoney') }}
             </UButton>
 
             <UButton
               v-if="personBalance && personBalance.openEntriesCount > 0"
-              icon="i-lucide-check-check"
+              icon="lucide:check-check"
               size="sm"
               color="success"
               variant="subtle"
-              @click="handleSettleAll"
+              @click="isShowSettleConfirm = true"
             >
-              {{ t('people.settleAll', 'Settle All') }}
+              {{ t('people.settleAll') }}
             </UButton>
           </div>
         </div>
@@ -170,10 +230,10 @@ function formatDate(timestamp: number) {
         <div>
           <div class="flex items-center justify-between pb-2 px-1">
             <h3 class="text-sm font-semibold text-highlighted">
-              {{ t('people.history', 'Lending History') }}
+              {{ t('people.history') }}
             </h3>
             <span class="text-xs text-muted">
-              {{ entries.length }} {{ t('people.records', 'records') }}
+              {{ entries.length }}
             </span>
           </div>
 
@@ -181,83 +241,135 @@ function formatDate(timestamp: number) {
             v-if="entries.length === 0"
             class="rounded-xl border border-dashed border-default p-6 text-center text-xs text-muted"
           >
-            {{ t('people.noEntries', 'No loans or repayments recorded yet.') }}
+            {{ t('people.desc') }}
           </div>
 
-          <div v-else class="flex flex-col divide-y divide-default overflow-hidden rounded-2xl border border-default bg-elevated/30">
-            <div
+          <div v-else class="grid gap-1">
+            <UiElement
               v-for="entry in entries"
               :key="entry.id"
-              class="flex items-center justify-between p-3 transition-colors hover:bg-elevated/50"
+              insideClasses="p-3 min-h-[48px] flex items-center justify-between"
               :class="{ 'opacity-60': entry.status === 'paid' }"
+              class="group"
             >
-              <div class="flex items-center gap-3">
+              <!-- Left side: Type Icon & Description -->
+              <div class="flex items-center gap-3 min-w-0">
                 <div
-                  class="flex size-8 items-center justify-center rounded-lg text-xs"
-                  :class="entry.type === 'lent' ? 'bg-emerald-500/15 text-emerald-500' : 'bg-rose-500/15 text-rose-500'"
+                  class="flex size-8 shrink-0 items-center justify-center rounded-lg text-xs"
+                  :class="entry.type === 'lent' ? 'bg-income/15 text-income' : 'bg-expense/15 text-expense'"
                 >
-                  <UIcon :name="entry.type === 'lent' ? 'i-lucide-arrow-up-right' : 'i-lucide-arrow-down-left'" class="size-4" />
+                  <Icon :name="entry.type === 'lent' ? 'lucide:arrow-up-right' : 'lucide:arrow-down-left'" size="16" />
                 </div>
-                <div>
-                  <div class="font-medium text-highlighted text-xs flex items-center gap-1.5">
-                    <span>{{ entry.desc || (entry.type === 'lent' ? t('people.lentLabel', 'Lent') : t('people.borrowedLabel', 'Borrowed')) }}</span>
+                <div class="min-w-0 truncate">
+                  <div class="font-medium text-highlighted text-xs flex items-center gap-1.5 truncate">
+                    <span class="truncate">{{ entry.desc || (entry.type === 'lent' ? t('people.lendMoney') : t('people.borrowMoney')) }}</span>
                     <UBadge
                       v-if="entry.status === 'paid'"
                       size="xs"
                       color="neutral"
                       variant="subtle"
                     >
-                      {{ t('people.paid', 'Paid') }}
+                      {{ t('people.settled') }}
                     </UBadge>
                   </div>
                   <div class="text-3xs text-dimmed flex items-center gap-2 pt-0.5">
                     <span>{{ formatDate(entry.date) }}</span>
                     <span v-if="entry.dueDate" class="text-amber-500">
-                      {{ t('people.due', 'Due') }}: {{ formatDate(entry.dueDate) }}
+                      Due: {{ formatDate(entry.dueDate) }}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <!-- Amount & Status Toggle -->
-              <div class="flex items-center gap-2">
-                <div
-                  class="text-xs font-semibold text-right"
-                  :class="entry.type === 'lent' ? 'text-emerald-500' : 'text-rose-500'"
-                >
-                  <span v-if="entry.type === 'lent'">+</span>
-                  <span v-else>-</span>
-                  {{ entry.amount }} {{ entry.currency }}
-                </div>
-                <UButton
-                  :icon="entry.status === 'open' ? 'i-lucide-circle' : 'i-lucide-check-circle-2'"
-                  size="xs"
-                  :color="entry.status === 'open' ? 'neutral' : 'success'"
-                  variant="ghost"
-                  :title="entry.status === 'open' ? 'Mark as Paid' : 'Mark as Open'"
+              <!-- Right side: Amount & Quick Actions -->
+              <div class="flex items-center gap-2 shrink-0">
+                <Amount
+                  :amount="entry.amount"
+                  :currencyCode="entry.currency"
+                  :colorize="entry.type === 'lent' ? 'income' : 'expense'"
+                  :isShowPlus="entry.type === 'lent'"
+                  :isShowMinus="entry.type === 'borrowed'"
+                  variant="sm"
+                  align="right"
+                />
+
+                <!-- Status toggle button -->
+                <button
+                  type="button"
+                  :title="entry.status === 'open' ? t('people.markSettled') : t('people.markPending')"
+                  class="interactive flex size-7 items-center justify-center rounded-md"
+                  :class="entry.status === 'open' ? 'text-muted hover:text-highlighted' : 'text-income'"
                   @click="peopleStore.toggleEntryStatus(entry.id)"
-                />
-                <UButton
-                  icon="i-lucide-x"
-                  size="xs"
-                  color="neutral"
-                  variant="ghost"
+                >
+                  <Icon :name="entry.status === 'open' ? 'lucide:circle' : 'lucide:check-circle-2'" size="16" />
+                </button>
+
+                <!-- Delete record button -->
+                <button
+                  type="button"
+                  :title="$t('base.delete')"
+                  class="interactive flex size-7 items-center justify-center rounded-md text-muted hover:text-error"
                   @click="peopleStore.deleteEntry(entry.id)"
-                />
+                >
+                  <Icon name="lucide:trash-2" size="14" />
+                </button>
               </div>
-            </div>
+            </UiElement>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Add Entry Modal -->
-    <UModal v-model:open="isAddEntryOpen" :title="entryType === 'lent' ? t('people.recordLent', 'Record Lent Money') : t('people.recordBorrowed', 'Record Borrowed Money')">
+    <!-- Edit Contact Modal -->
+    <UModal v-model:open="isEditContactOpen" :title="t('people.edit')">
       <template #body>
-        <form class="grid gap-3 p-4" @submit.prevent="handleAddEntry">
+        <form class="grid gap-3.5 p-4" @submit.prevent="handleSaveContact">
           <div>
-            <label class="block text-xs font-medium text-muted pb-1">
-              {{ t('base.amount', 'Amount') }} ({{ currenciesStore.base }}) *
+            <label class="block text-xs font-medium text-muted pb-1.5">
+              {{ t('people.name') }} *
+            </label>
+            <UInput
+              v-model="editName"
+              placeholder="e.g. Alex Rivera"
+              size="md"
+              autofocus
+              required
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-muted pb-1.5">
+              {{ t('people.notes') }}
+            </label>
+            <UInput
+              v-model="editPhone"
+              placeholder="e.g. +1 555 0192"
+              size="md"
+            />
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <UButton variant="ghost" color="neutral" @click="isEditContactOpen = false">
+              {{ t('base.cancel') }}
+            </UButton>
+            <UButton type="submit" color="primary" :disabled="!editName.trim()">
+              {{ t('base.save') }}
+            </UButton>
+          </div>
+        </form>
+      </template>
+    </UModal>
+
+    <!-- Add Entry Modal -->
+    <UModal
+      v-model:open="isAddEntryOpen"
+      :title="entryType === 'lent' ? t('people.lendMoney') : t('people.borrowMoney')"
+    >
+      <template #body>
+        <form class="grid gap-3.5 p-4" @submit.prevent="handleAddEntry">
+          <div>
+            <label class="block text-xs font-medium text-muted pb-1.5">
+              {{ t('base.amount') }} ({{ currenciesStore.base }}) *
             </label>
             <UInput
               v-model="entryAmount"
@@ -271,8 +383,8 @@ function formatDate(timestamp: number) {
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-muted pb-1">
-              {{ t('base.description', 'Description or Note') }}
+            <label class="block text-xs font-medium text-muted pb-1.5">
+              {{ t('base.description') }}
             </label>
             <UInput
               v-model="entryDesc"
@@ -282,8 +394,8 @@ function formatDate(timestamp: number) {
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-muted pb-1">
-              {{ t('people.dueDateLabel', 'Expected Repayment Date (optional)') }}
+            <label class="block text-xs font-medium text-muted pb-1.5">
+              Expected Repayment Date (optional)
             </label>
             <UInput
               v-model="entryDueDate"
@@ -292,20 +404,37 @@ function formatDate(timestamp: number) {
             />
           </div>
 
-          <div class="flex justify-end gap-2 pt-3">
+          <div class="flex justify-end gap-2 pt-2">
             <UButton variant="ghost" color="neutral" @click="isAddEntryOpen = false">
-              {{ t('base.cancel', 'Cancel') }}
+              {{ t('base.cancel') }}
             </UButton>
             <UButton type="submit" color="primary" :disabled="!entryAmount || entryAmount <= 0">
-              {{ t('base.save', 'Save') }}
+              {{ t('base.save') }}
             </UButton>
           </div>
         </form>
       </template>
     </UModal>
+
+    <!-- Confirm Delete Contact Modal -->
+    <LayoutConfirmModal
+      v-if="isShowDeleteConfirm"
+      :title="t('people.deleteConfirm')"
+      @closed="isShowDeleteConfirm = false"
+      @confirm="handleDeletePersonConfirm"
+    />
+
+    <!-- Confirm Settle All Modal -->
+    <LayoutConfirmModal
+      v-if="isShowSettleConfirm"
+      :title="t('people.settleAll')"
+      description="Mark all outstanding records for this contact as settled?"
+      @closed="isShowSettleConfirm = false"
+      @confirm="handleSettleAllConfirm"
+    />
   </UiPage>
 
   <div v-else class="flex h-64 items-center justify-center">
-    <UIcon name="i-lucide-loader-circle" class="size-6 animate-spin text-primary" />
+    <Icon name="lucide:loader-circle" class="size-6 animate-spin text-primary" />
   </div>
 </template>
