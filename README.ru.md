@@ -1,28 +1,17 @@
-<p align="center">
-  <img src="https://finapp.ilko.me/logo.png" alt="Finapp Logo" width="320" />
-</p>
-
-# Finapp - финансовое приложение с открытым исходным кодом
+# EliteMoney - Персональное финансовое приложение
 
 [English](./README.md) | **Русский**
 
 > Ваши деньги, ваш контроль - где угодно и когда угодно.
 
-**Finapp** помогает легко отслеживать личные финансы и управлять ими. Репозиторий представляет собой pnpm-монорепозиторий с Nuxt-приложением и сайтом документации.
+**EliteMoney** помогает легко отслеживать личные финансы и управлять ими. Репозиторий представляет собой pnpm-монорепозиторий с Nuxt-приложением и сайтом документации.
 
-## Демо
+## Быстрые ссылки
 
-[finapp.ilko.me](https://finapp.ilko.me/)
+- **Документация и руководство по настройке**: [`docs/SETUP_AND_TROUBLESHOOTING.md`](docs/SETUP_AND_TROUBLESHOOTING.md)
+- **SQL-скрипт инициализации**: [`app/supabase/setup_complete.sql`](app/supabase/setup_complete.sql)
 
-## Документация
-
-[finapp-docs.ilko.me](https://finapp-docs.ilko.me/)
-
-## Граф знаний
-
-Интерактивная карта архитектуры кодовой базы: [finapp-graph.ilko.me/ru](https://finapp-graph.ilko.me/ru/)
-
-## Почему Finapp?
+## Почему EliteMoney?
 
 - **Просто**: ничего лишнего - только ваши транзакции и балансы.
 - **Быстро**: работает офлайн и мгновенно синхронизируется между устройствами.
@@ -76,7 +65,7 @@
 ## Структура репозитория
 
 ```text
-finapp/
+elitemoney/
   app/    # Nuxt-приложение, конфигурация Supabase + PowerSync, тесты, ассеты
   docs/   # Сайт документации на Docus
 ```

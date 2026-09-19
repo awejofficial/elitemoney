@@ -176,7 +176,7 @@ export default defineNuxtConfig({
         type: 'image/png',
       }],
       id: '/',
-      name: 'Finapp',
+      name: 'EliteMoney',
       screenshots: [{
         form_factor: 'wide',
         sizes: '1920x1080',
@@ -188,7 +188,7 @@ export default defineNuxtConfig({
         src: 'screenshot-mobile.png',
         type: 'image/png',
       }],
-      short_name: 'Finapp',
+      short_name: 'EliteMoney',
       start_url: '/dashboard',
       theme_color: '#171717',
     },
