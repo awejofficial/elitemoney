@@ -50,7 +50,7 @@ export function useMenuData() {
         name: t('people.title', 'People & Lending'),
       },
       recurring: {
-        icon: 'hugeicons:repeat-circle',
+        icon: 'hugeicons:repeat',
         name: t('recurring.title', 'Recurring'),
       },
       currencies: {
