@@ -4,10 +4,10 @@ export default defineAppConfig({
     floatingInput: false,
   },
   github: {
-    url: 'https://github.com/ilkome/finapp',
+    url: 'https://github.com/awejofficial/elitemoney',
   },
   header: {
-    title: 'Finapp',
+    title: 'EliteMoney',
   },
   ui: {
     colors: {

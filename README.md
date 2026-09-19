@@ -83,8 +83,8 @@ The root package contains workspace scripts only. App and docs dependencies are 
 ### Install
 
 ```bash
-git clone https://github.com/ilkome/finapp.git finapp
-cd finapp
+git clone https://github.com/awejofficial/elitemoney.git
+cd elitemoney
 pnpm install
 ```
 
@@ -208,13 +208,10 @@ pnpm dev:all
 
 ## Documentation
 
-User guides, development notes, and technical reference live in [`docs/content`](docs/content). 
-Start the docs site with `pnpm docs:dev`.
+User guides, development notes, and technical reference live in [`docs/content`](docs/content) and [`docs/SETUP_AND_TROUBLESHOOTING.md`](docs/SETUP_AND_TROUBLESHOOTING.md).
+Start the local docs site with `pnpm docs:dev`.
 
-## Previous Version
+## Contributing & Repository
 
-The previous version of Finapp, built on Firebase, is available in the [`firebase`](https://github.com/ilkome/finapp/tree/firebase) branch.
-
-## Stay Connected
-
-- Telegram: [@ilkome](https://t.me/ilkome)
+- GitHub: [awejofficial/elitemoney](https://github.com/awejofficial/elitemoney)
+- License: [MIT](./LICENSE)

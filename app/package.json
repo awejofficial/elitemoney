@@ -1,14 +1,14 @@
 {
-  "name": "@finapp/app",
+  "name": "@elitemoney/app",
   "type": "module",
-  "version": "8.2.0",
+  "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@11.1.2",
-  "description": "Finapp helps you easily track and manage personal finances.",
-  "author": "Ilya Komichev @ilkome",
+  "description": "EliteMoney helps you easily track and manage personal finances.",
+  "author": "Awej @awejofficial",
   "license": "MIT",
-  "homepage": "https://ilko.me",
-  "repository": "ilkome/finapp",
+  "homepage": "https://github.com/awejofficial/elitemoney",
+  "repository": "awejofficial/elitemoney",
   "keywords": [
     "vue, nuxt, supabase, powersync, tailwind, pwa, echarts, swiper"
   ],

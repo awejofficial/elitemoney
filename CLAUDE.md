@@ -1,6 +1,6 @@
-# Finapp
+# EliteMoney
 
-Personal finance app. Nuxt 4, Vue 3, Pinia, @nuxt/ui v4 (Tailwind CSS v4), Supabase (Postgres) backend, PowerSync offline-first sync, Supabase Auth (email/password + Google OAuth). Repo is a pnpm monorepo: `app/` (`@finapp/app`, Nuxt source under `app/app/`, Supabase config under `app/supabase/`, self-hosted PowerSync under `app/powersync/`) and `docs/` (`@finapp/docs`).
+Personal finance app. Nuxt 4, Vue 3, Pinia, @nuxt/ui v4 (Tailwind CSS v4), Supabase (Postgres) backend, PowerSync offline-first sync, Supabase Auth (email/password + Google OAuth). Repo is a pnpm monorepo: `app/` (`@elitemoney/app`, Nuxt source under `app/app/`, Supabase config under `app/supabase/`, self-hosted PowerSync under `app/powersync/`) and `docs/` (`@elitemoney/docs`).
 
 - Node.js >= v24.12.0
 - Package manager: pnpm

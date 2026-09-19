@@ -1,10 +1,10 @@
 <template>
   <a
-    aria-label="ilko.me"
+    aria-label="EliteMoney"
     class="flex-center interactive text-muted hover:text-primary gap-2 rounded-full px-4 py-2 transition-colors"
-    href="https://ilko.me"
+    href="https://github.com/awejofficial/elitemoney"
   >
-    <span class="text-sm">ilko.me</span>
+    <span class="text-sm">EliteMoney</span>
     <Icon
       class="animate-[heartbeat_3s_ease-in-out_infinite] text-2xl"
       name="mdi:heart"

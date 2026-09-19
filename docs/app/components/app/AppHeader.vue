@@ -30,14 +30,14 @@ const links = computed(() => appConfig.github && appConfig.github.url
 
     <template #right>
       <UButton
-        to="https://finapp.ilko.me"
+        to="https://github.com/awejofficial/elitemoney"
         target="_blank"
         color="neutral"
         variant="ghost"
         size="sm"
         trailingIcon="i-lucide-arrow-up-right"
       >
-        Open Finapp
+        Open EliteMoney
       </UButton>
 
       <AppHeaderCTA />

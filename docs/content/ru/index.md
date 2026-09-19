@@ -29,7 +29,7 @@ seo:
   color: neutral
   icon: simple-icons-github
   size: xl
-  to: https://github.com/ilkome/finapp
+  to: https://github.com/awejofficial/elitemoney
   variant: outline
   ---
   GitHub

@@ -13,8 +13,8 @@ type Panel = 'language' | 'palette' | 'root' | 'theme'
 // user mid-onboarding; the login page renders this menu without them.
 const { sessionActions = false } = defineProps<{ sessionActions?: boolean }>()
 
-const GITHUB_URL = 'https://github.com/ilkome/finapp'
-const DOCS_URL = 'https://finapp-docs.ilko.me/'
+const GITHUB_URL = 'https://github.com/awejofficial/elitemoney'
+const DOCS_URL = 'https://github.com/awejofficial/elitemoney#readme'
 
 const THEME_ICONS: Record<string, string> = {
   dark: 'i-lucide-moon',

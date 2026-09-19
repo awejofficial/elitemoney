@@ -14,7 +14,7 @@ const { t } = useI18n()
           {{ t('about.author') }}
         </div>
         <div class="text-font-2 font-secondary text-sm leading-none">
-          ilkome
+          Awej (@awejofficial)
         </div>
       </div>
 

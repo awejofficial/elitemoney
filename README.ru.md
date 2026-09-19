@@ -94,8 +94,8 @@ finapp/
 ### Установка
 
 ```bash
-git clone https://github.com/ilkome/finapp.git finapp
-cd finapp
+git clone https://github.com/awejofficial/elitemoney.git
+cd elitemoney
 pnpm install
 ```
 
@@ -188,13 +188,10 @@ pnpm dev:all
 
 ## Документация
 
-Руководства пользователя, заметки по разработке и техническая справка находятся в [`docs/content`](docs/content).
+Руководства пользователя, заметки по разработке и техническая справка находятся в [`docs/content`](docs/content) и [`docs/SETUP_AND_TROUBLESHOOTING.md`](docs/SETUP_AND_TROUBLESHOOTING.md).
 Запустите сайт документации командой `pnpm docs:dev`.
 
-## Предыдущая версия
+## Репозиторий
 
-Предыдущая версия Finapp на Firebase доступна в ветке [`firebase`](https://github.com/ilkome/finapp/tree/firebase).
-
-## Контакты
-
-- Telegram: [@ilkome](https://t.me/ilkome)
+- GitHub: [awejofficial/elitemoney](https://github.com/awejofficial/elitemoney)
+- Лицензия: [MIT](./LICENSE)
