@@ -214,6 +214,9 @@ function onGenerateDemoData() {
           </div>
         </UiSettingsCard>
 
+        <!-- Notifications & Reminders -->
+        <SettingsNotificationsCard />
+
         <!-- Extension point for layers (e.g. premium Telegram card) -->
         <ExtensionSlot name="settings" />
 
