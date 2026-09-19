@@ -1,0 +1,383 @@
+import type { CurrencyCode } from '~/components/currencies/types'
+
+export const currencies: {
+  code: CurrencyCode
+  precision?: number
+  symbol?: string
+}[] = [{
+  code: 'CNH',
+}, {
+  code: 'AED',
+}, {
+  code: 'AFN',
+}, {
+  code: 'ALL',
+}, {
+  code: 'AMD',
+}, {
+  code: 'ANG',
+}, {
+  code: 'AOA',
+}, {
+  code: 'ARS',
+}, {
+  code: 'AUD',
+}, {
+  code: 'AWG',
+}, {
+  code: 'AZN',
+}, {
+  code: 'BAM',
+}, {
+  code: 'BBD',
+}, {
+  code: 'BDT',
+}, {
+  code: 'BGN',
+}, {
+  code: 'BHD',
+}, {
+  code: 'BIF',
+}, {
+  code: 'BMD',
+}, {
+  code: 'BND',
+}, {
+  code: 'BOB',
+}, {
+  code: 'BOV',
+}, {
+  code: 'BRL',
+}, {
+  code: 'BSD',
+}, {
+  code: 'BTC',
+  precision: 8,
+  symbol: '₿',
+}, {
+  code: 'BTN',
+}, {
+  code: 'BWP',
+}, {
+  code: 'BYN',
+}, {
+  code: 'BZD',
+}, {
+  code: 'CAD',
+}, {
+  code: 'CDF',
+}, {
+  code: 'CHE',
+}, {
+  code: 'CHF',
+}, {
+  code: 'CHW',
+}, {
+  code: 'CLF',
+}, {
+  code: 'CLP',
+}, {
+  code: 'CNY',
+}, {
+  code: 'COP',
+}, {
+  code: 'COU',
+}, {
+  code: 'CRC',
+}, {
+  code: 'CUC',
+}, {
+  code: 'CUP',
+}, {
+  code: 'CVE',
+}, {
+  code: 'CZK',
+}, {
+  code: 'DJF',
+}, {
+  code: 'DKK',
+}, {
+  code: 'DOP',
+}, {
+  code: 'DZD',
+}, {
+  code: 'EGP',
+}, {
+  code: 'ERN',
+}, {
+  code: 'ETB',
+}, {
+  code: 'EUR',
+  symbol: '€',
+}, {
+  code: 'FJD',
+}, {
+  code: 'FKP',
+}, {
+  code: 'GBP',
+}, {
+  code: 'GEL',
+}, {
+  code: 'GHS',
+}, {
+  code: 'GIP',
+}, {
+  code: 'GMD',
+}, {
+  code: 'GNF',
+}, {
+  code: 'GTQ',
+}, {
+  code: 'GYD',
+}, {
+  code: 'HKD',
+}, {
+  code: 'HNL',
+}, {
+  code: 'HRK',
+}, {
+  code: 'HTG',
+}, {
+  code: 'HUF',
+}, {
+  code: 'IDR',
+  precision: 0,
+  symbol: 'Rp',
+}, {
+  code: 'ILS',
+  precision: 2,
+  symbol: '₪',
+}, {
+  code: 'INR',
+}, {
+  code: 'IQD',
+}, {
+  code: 'IRR',
+}, {
+  code: 'ISK',
+}, {
+  code: 'JMD',
+}, {
+  code: 'JOD',
+}, {
+  code: 'JPY',
+}, {
+  code: 'KES',
+}, {
+  code: 'KGS',
+}, {
+  code: 'KHR',
+}, {
+  code: 'KMF',
+}, {
+  code: 'KPW',
+}, {
+  code: 'KRW',
+}, {
+  code: 'KWD',
+}, {
+  code: 'KYD',
+}, {
+  code: 'KZT',
+}, {
+  code: 'LAK',
+}, {
+  code: 'LBP',
+}, {
+  code: 'LKR',
+}, {
+  code: 'LRD',
+}, {
+  code: 'LSL',
+}, {
+  code: 'LYD',
+}, {
+  code: 'MAD',
+}, {
+  code: 'MDL',
+}, {
+  code: 'MGA',
+}, {
+  code: 'MKD',
+}, {
+  code: 'MMK',
+}, {
+  code: 'MNT',
+}, {
+  code: 'MOP',
+}, {
+  code: 'MRU',
+}, {
+  code: 'MUR',
+}, {
+  code: 'MVR',
+}, {
+  code: 'MWK',
+}, {
+  code: 'MXN',
+}, {
+  code: 'MXV',
+}, {
+  code: 'MYR',
+}, {
+  code: 'MZN',
+}, {
+  code: 'NAD',
+}, {
+  code: 'NGN',
+}, {
+  code: 'NIO',
+}, {
+  code: 'NOK',
+}, {
+  code: 'NPR',
+}, {
+  code: 'NZD',
+}, {
+  code: 'OMR',
+}, {
+  code: 'PAB',
+}, {
+  code: 'PEN',
+}, {
+  code: 'PGK',
+}, {
+  code: 'PHP',
+}, {
+  code: 'PKR',
+}, {
+  code: 'PLN',
+}, {
+  code: 'PYG',
+}, {
+  code: 'QAR',
+}, {
+  code: 'RON',
+}, {
+  code: 'RSD',
+}, {
+  code: 'RUB',
+  precision: 0,
+  symbol: '₽',
+}, {
+  code: 'RWF',
+}, {
+  code: 'SAR',
+}, {
+  code: 'SBD',
+}, {
+  code: 'SCR',
+}, {
+  code: 'SDG',
+}, {
+  code: 'SEK',
+}, {
+  code: 'SGD',
+}, {
+  code: 'SHP',
+}, {
+  code: 'SLL',
+}, {
+  code: 'SOS',
+}, {
+  code: 'SRD',
+}, {
+  code: 'SSP',
+}, {
+  code: 'STN',
+}, {
+  code: 'SVC',
+}, {
+  code: 'SYP',
+}, {
+  code: 'SZL',
+}, {
+  code: 'THB',
+  precision: 0,
+  symbol: '฿',
+}, {
+  code: 'TJS',
+}, {
+  code: 'TMT',
+}, {
+  code: 'TND',
+}, {
+  code: 'TOP',
+}, {
+  code: 'TRY',
+  precision: 2,
+  symbol: '₺',
+}, {
+  code: 'TTD',
+}, {
+  code: 'TWD',
+}, {
+  code: 'TZS',
+}, {
+  code: 'UAH',
+}, {
+  code: 'UGX',
+}, {
+  code: 'USD',
+  symbol: '$',
+}, {
+  code: 'USN',
+}, {
+  code: 'UYI',
+}, {
+  code: 'UYU',
+}, {
+  code: 'UYW',
+}, {
+  code: 'UZS',
+}, {
+  code: 'VES',
+}, {
+  code: 'VND',
+}, {
+  code: 'VUV',
+}, {
+  code: 'WST',
+}, {
+  code: 'XAF',
+}, {
+  code: 'XAG',
+}, {
+  code: 'XAU',
+}, {
+  code: 'XBA',
+}, {
+  code: 'XBB',
+}, {
+  code: 'XBC',
+}, {
+  code: 'XBD',
+}, {
+  code: 'XCD',
+}, {
+  code: 'XDR',
+}, {
+  code: 'XOF',
+}, {
+  code: 'XPD',
+}, {
+  code: 'XPF',
+}, {
+  code: 'XPT',
+}, {
+  code: 'XSU',
+}, {
+  code: 'XTS',
+}, {
+  code: 'XUA',
+}, {
+  code: 'XXX',
+}, {
+  code: 'YER',
+}, {
+  code: 'ZAR',
+}, {
+  code: 'ZMW',
+}, {
+  code: 'ZWL',
+}]

@@ -1,0 +1,603 @@
+export default {
+  about: {
+    author: 'Автор',
+    thanks: 'Спасибо за поддержку',
+    title: 'Создатели',
+  },
+
+  actionError: {
+    goHome: 'На главную',
+    title: 'Ошибка',
+  },
+
+  alerts: {
+    removedUserData: 'Все данные удалены.',
+    willDeleteEverything: 'Все данные будут безвозвратно удалены, включая кошельки, категории и транзакции',
+  },
+
+  app: {
+    about: 'О приложении',
+    desc: 'Приложение для учета личных финансов',
+    loadError: 'Не удалось загрузить данные. Проверьте соединение и попробуйте снова.',
+    retry: 'Повторить',
+    toggleSidebar: 'Скрыть/показать боковую панель',
+    version: 'Версия',
+  },
+
+  appName: 'Финапка',
+
+  base: {
+    add: 'Создать',
+    apply: 'Применить',
+    cancel: 'Отмена',
+    close: 'Закрыть',
+    delete: 'Удалить',
+    duplicate: 'Дублировать',
+    edit: 'Редактировать',
+    loading: 'Загрузка...',
+    menu: 'Меню',
+    moreOptions: 'Ещё',
+    next: 'Вперёд',
+    no: 'Нет',
+    noData: 'Нет данных',
+    off: 'Откл.',
+    on: 'Вкл.',
+    open: 'Открыть',
+    previous: 'Назад',
+    save: 'Сохранить',
+    sure: 'Удалить?',
+    today: 'Сегодня',
+    toggleExpand: 'Развернуть/свернуть',
+    toggleFolders: 'Папки',
+    toggleGrouping: 'Группировка',
+    togglePresets: 'Пресеты',
+    toggleView: 'Вид',
+    yes: 'Да',
+  },
+
+  categories: {
+    actions: {
+      addToFavorites: 'Добавить в избранное',
+      addToRecent: 'Показывать в недавних',
+      removeFromFavorites: 'Убрать из избранного',
+      removeFromRecent: 'Не показывать в недавних',
+    },
+    allTitle: 'Все',
+    createNewTitle: 'Добавление категории',
+    errors: {
+      deleteFailed: 'Не удалось удалить категорию',
+      saveFailed: 'Не удалось сохранить категорию',
+    },
+    favorite: 'Избранное',
+    favoriteCategories: 'Избранные категории',
+    filter: 'Фильтр по категориям',
+    form: {
+      childColor: 'Применить цвет ко всем дочерним категориям',
+      children: {
+        confirmRemove: 'Отсоединить выбранные категории ({count}) от родителя? Они станут корневыми.',
+        empty: 'Нет детей',
+        group: {
+          current: 'Текущие дети',
+          freeRoot: 'Свободные корневые',
+          fromOther: 'Переместить из другого родителя',
+        },
+        label: 'Дочерние категории',
+        noCandidates: 'Нет доступных категорий',
+        noMatches: 'Ничего не найдено',
+        searchPlaceholder: 'Поиск...',
+        selected: 'Выбрано: {count}',
+      },
+      delete: {
+        alertWithTrns: 'Также будут удалены',
+        errorChildren: 'Вы не можете удалить категорию с дочерними категориям. Сначала удалите дочерние категории.',
+        okWithoutTrns: 'Категория удалена',
+        okWithTrns: `Категория удалена и {trns}`,
+        title: 'Удалить категорию?',
+      },
+      favoriteCategory: 'Избранная категория',
+      icon: {
+        desc: 'Используйте любую иконку из набора',
+        label: 'Иконка',
+        link: 'Ссылка',
+        placeholder: 'Название иконки...',
+      },
+      name: {
+        error: 'Напишите название',
+        exist: 'Категория с таким именем уже существует',
+        label: 'Название',
+        placeholder: 'Напишите...',
+      },
+      parent: {
+        label: 'Родительская категория',
+        no: 'Без родителя',
+      },
+      recentCategory: 'Показывать в недавно использованных',
+      selectChildren: 'Дочерние категории',
+      selectColor: 'Цвет',
+      selectIcon: 'Иконка',
+      selectParent: 'Родительская категория',
+    },
+    name: 'Категории',
+    new: 'Новая категория',
+    recent: 'Недавние',
+    recentCategories: 'Недавние категории',
+    search: {
+      placeholder: 'Поиск',
+    },
+    title: 'Категории',
+  },
+
+  chart: {
+    empty: 'Нет данных за период',
+    types: {
+      bar: 'Колонки',
+      line: 'Линии',
+      pie: 'Кольцо',
+    },
+  },
+
+  color: {
+    custom: 'Произвольный цвет',
+    label: 'Цвет',
+  },
+
+  common: {
+    all: 'Все',
+    date: 'Дата',
+  },
+
+  currencies: {
+    ariaFilter: 'Фильтр валют',
+    base: 'Основная валюта',
+    list: {
+      all: 'Все',
+      notFound: 'Валюта не найдена...',
+      search: 'Поиск',
+      showAll: 'Показать все кошельки',
+    },
+    page: {
+      crypto: 'Криптовалюты',
+      fiat: 'Фиатные',
+      rate: 'Курс',
+      setBase: 'Сделать основной валютой',
+      showAll: 'Все',
+      showUsed: 'Используемые',
+      title: 'Валюты',
+    },
+    select: 'Выбрать валюту',
+  },
+
+  dates: {
+    calendar: {
+      calendar: 'Календарь',
+      intervalsGrouped: 'Группировка',
+      presets: 'Пресеты',
+    },
+    day: {
+      current: 'Сегодня',
+      last: 'Вчера',
+      plural: 'дней | день | дня | дней',
+      short: 'д',
+      simple: 'День',
+    },
+    last: {
+      day: 'Последних | Последний | Последние | Последние',
+      month: 'Последний | Последний | Последние | Последние',
+      week: 'Последних | Последняя | Последние | Последние',
+      year: 'Последний | Последний | Последние | Последние',
+    },
+    month: {
+      current: 'Текущий месяц',
+      last: 'Прошлый месяц',
+      plural: 'месяцев | месяц | месяца | месяцев',
+      short: 'м',
+      simple: 'Месяц',
+    },
+    ranges: {
+      all: 'Все',
+      allSkipEmpty: 'Максимально',
+    },
+    select: 'Период',
+    week: {
+      current: 'Текущая неделя',
+      last: 'Прошлая неделя',
+      plural: 'недель | неделя | недели | недель',
+      short: 'н',
+      simple: 'Неделя',
+    },
+    year: {
+      current: 'Текущий год',
+      last: 'Прошлый год',
+      plural: 'лет | год | лет | лет',
+      short: 'г',
+      simple: 'Год',
+    },
+  },
+
+  demo: {
+    exit: 'Выйти из демо режима',
+    update: 'Обновить демо данные',
+    updated: 'Данные обновлены',
+  },
+
+  dev: {
+    menu: {
+      title: 'Разработка',
+    },
+  },
+
+  locale: {
+    en: 'Английский',
+    ru: 'Русский',
+    title: 'Язык',
+  },
+
+  login: {
+    description: 'Персональный финансовый ассистент',
+    error: 'Ошибка входа. Попробуйте ещё раз.',
+    menu: {
+      documentation: 'Документация',
+      title: 'Меню',
+    },
+    openDemo: 'Открыть демо',
+    or: 'или',
+    signInWithGoogle: 'Войти через Google',
+    title: 'Вход',
+  },
+
+  money: {
+    all: 'Всего',
+    average: 'Среднее',
+    balance: 'Баланс',
+    expense: 'Расход',
+    income: 'Доход',
+    netIncome: 'Суммарно',
+    options: {
+      isExcludeInTotal: 'Не считать в общем балансе',
+      withdrawal: 'Доступные для снятия',
+    },
+    split: 'Раздельно',
+    summary: 'Общее',
+    totals: {
+      archived: 'Архивный',
+    },
+    type: 'Тип кошельки',
+    types: {
+      available: 'Доступные',
+      cash: 'Наличные',
+      cashless: 'Безнал',
+      credit: 'Кредит',
+      crypto: 'Крипта',
+      debt: 'Долги',
+      deposit: 'Вклады',
+      isArchived: 'Архивные',
+      isAvailable: 'Доступные с учетом кредитов',
+      isExcludeInTotal: 'Не учитываемые в общем балансе',
+      isWithdrawal: 'Доступные для снятия',
+      total: 'Всего',
+    },
+  },
+
+  onboarding: {
+    actionCategory: 'Добавить категорию',
+    actionTrn: 'Добавить транзакцию',
+    actionWallet: 'Добавить кошелек',
+    intro: 'Добавьте свой первый доход или расход',
+    introCategories: 'Добавьте категорию, например, «Еда» или «Зарплата»',
+    introWallets: 'Начните учёт финансов, добавив первый кошелёк',
+  },
+
+  search: {
+    noResults: 'Ничего не найдено',
+    placeholder: 'Поиск категорий, кошельков, транзакций...',
+    title: 'Поиск',
+  },
+
+  settings: {
+    caution: 'C осторожностью',
+    deleteButton: 'Удалить все мои данные',
+    errors: {
+      saveFailed: 'Не удалось сохранить настройки',
+    },
+    menuLabels: 'Подписи в нижнем меню',
+    mobileMenu: 'Интерфейс',
+    title: 'Настройки',
+  },
+
+  stat: {
+    average: {
+      forLast: 'за прошлые периоды',
+    },
+    catButtons: {
+      isLines: 'Линии сумм',
+      isRoundIcon: 'Фон иконок',
+    },
+    config: {
+      categories: {
+        list: {
+          description: 'Развёрнутый список всех категорий за период с суммами, долями и количеством транзакций.',
+          title: 'Список категорий',
+        },
+        rounds: {
+          description: 'Лента круглых иконок: избранные, недавно используемые.',
+          groupByParent: 'Группировать по родителю',
+          showFavorites: 'Показывать избранные',
+          showRecent: 'Показывать недавние',
+          title: 'Быстрые категории',
+        },
+        vertical: {
+          groupByParent: 'Группировка по родителю',
+          title: 'Колонки сравнения',
+        },
+      },
+      chart: {
+        average: {
+          label: 'Показывать средние значения',
+        },
+        byCategories: 'По категориям',
+        groupByParent: 'Группировать по родителю',
+        other: 'Прочее',
+        type: {
+          label: 'Тип графика',
+        },
+      },
+      chartShow: {
+        label: 'Показывать график',
+        title: 'Основной график',
+      },
+      chartView: {
+        full: 'Широкий',
+        half: 'Компактный',
+        label: 'Вид графика',
+      },
+      date: {
+        quick: {
+          label: 'Слайдер быстрого выбора даты',
+        },
+      },
+      grouping: {
+        auto: 'Авто',
+        children: 'С вложенными',
+        description: 'Авто - каждый блок использует собственную настройку.\nТолько родители - суммы подкатегорий добавляются к родителю.\nС вложенными - каждая подкатегория отдельной строкой.',
+        label: 'Группировка категорий',
+        parents: 'Только родители',
+      },
+      menu: {
+        label: 'Настройки страницы',
+      },
+      showedWallets: {
+        placeholder: 'Количество',
+      },
+      statAverage: {
+        count: {
+          label: 'Показывать средние значения',
+        },
+        description: 'Среднее арифметическое сумм за выбранное число прошлых периодов. Показывается рядом с итогом за период.',
+        subtitle: 'Среднее за {count} прошлых периодов',
+        title: 'Средние суммы',
+      },
+      wallets: {
+        description: 'Быстрый доступ к первым N кошелькам из общего списка. Порядок задаётся на странице «Кошельки».',
+        label: 'Показывать кошельки',
+        showIcon: 'Показывать иконку кошелька',
+        subtitle: 'Топ {count}',
+        title: 'Кошельки',
+      },
+    },
+    title: 'Статистика',
+  },
+
+  statistics: {
+    title: 'Статистика',
+  },
+
+  sync: {
+    actions: {
+      reauth: 'Войти снова',
+      reloadFromServer: 'Загрузить с сервера',
+    },
+    errors: {
+      sessionLostPending: 'Сессия завершилась, а {count} изменений ещё не синхронизированы. Войдите снова, чтобы отправить их.',
+      uploadDiverged: 'Изменение не удалось синхронизировать - локальные данные могут отличаться от сервера. Загрузите заново, чтобы отменить несинхронизированные локальные изменения и обновить данные с сервера.',
+      uploadRejected: 'Некоторые изменения не удалось синхронизировать с сервером',
+      uploadReverted: 'Изменение не удалось сохранить, оно было отменено',
+    },
+  },
+
+  theme: {
+    color: 'Сменить цвет оформления',
+    dark: 'Темная',
+    light: 'Светлая',
+    palette: 'Цветовая палитра',
+    picker: {
+      neutral: 'Фоновый цвет',
+      primary: 'Основной цвет',
+      radius: 'Скругление',
+      theme: 'Тема',
+    },
+    system: 'Авто',
+    title: 'Оформление',
+  },
+
+  transfer: {
+    titleMoney: 'Переводы',
+  },
+
+  trnForm: {
+    adjustmentTitle: 'Корректировка',
+    ariaCopyAmount: 'Копировать сумму',
+    category: {
+      select: 'Выбрать категорию',
+    },
+    createTrn: 'Создать транзакцию',
+    delete: {
+      alert: 'Удалить транзакцию?',
+    },
+    description: {
+      placeholder: 'Напишите...',
+      title: 'Описание',
+    },
+    enterAmount: '0',
+    errors: {
+      amountEmpty: 'Сумма не может быть пустой',
+      amountNegative: 'Сумма не может быть отрицательной',
+      amountZero: 'Сумма не может быть равна нулю',
+      selectCategory: 'Выберите категорию',
+      selectWallet: 'Выберите кошелек',
+      transferAmountEmpty: 'Суммы перевода не могут быть пустыми',
+      transferSameWallet: 'Перевод в тот же кошелек',
+    },
+    filterAll: 'Все',
+    filterWallet: 'Кошелек',
+    filterWalletAndCategory: 'Кошелек и Категория',
+    titleEditTrn: 'Редактирование транзакции',
+    transfer: {
+      expenseLabel: 'Перевод из',
+      expenseModal: 'Перевод из кошелька',
+      incomeLabel: 'Перевод в',
+      incomeModal: 'Перевод в кошелёк',
+    },
+    transferTitle: 'Перевод',
+    wallet: {
+      select: 'Выбрать кошелек',
+    },
+  },
+
+  trns: {
+    errors: {
+      deleteFailed: 'Не удалось удалить транзакцию',
+      orphanedSkipped: '{count} транзакций пропущено (кошелёк или категория были удалены)',
+      saveFailed: 'Не удалось сохранить транзакцию',
+    },
+    filter: {
+      showTrnsWithDesc: 'Только с описанием',
+    },
+    history: 'История',
+    more: 'Показать еще',
+    noTrns: 'Нет транзакций',
+    plural: '0 транзакций | {n} транзакция | {n} транзакции | {n} транзакций',
+    title: 'Транзакции',
+  },
+
+  user: {
+    logout: 'Выйти из аккаунта',
+    title: 'Аккаунт',
+  },
+
+  wallets: {
+    ariaSwitch: 'Поменять кошельки',
+    createNewTitle: 'Добавление кошелька',
+    errors: {
+      deleteFailed: 'Не удалось удалить кошелек',
+      orderFailed: 'Не удалось сохранить порядок кошельков',
+      saveFailed: 'Не удалось сохранить кошелек',
+    },
+    filter: 'Фильтр по кошелькам',
+    filterByCurrency: 'Валюты кошельков',
+    form: {
+      credit: {
+        available: 'Доступно',
+        debt: 'Долг',
+        limit: 'Лимит',
+      },
+      currencies: {
+        label: 'Валюта',
+      },
+      delete: {
+        alertWithTrns: 'Также будут удалены',
+        okWithoutTrns: 'Кошелек удален',
+        okWithTrns: `Кошелек удален и {trns}`,
+        title: 'Удалить кошелёк?',
+      },
+      description: {
+        label: 'Описание (не обязательно)',
+        placeholder: 'Напишите...',
+      },
+      name: {
+        error: 'Напишите название',
+        label: 'Название',
+        placeholder: 'Напишите...',
+      },
+    },
+    name: 'Кошельки',
+    new: 'Новый кошелек',
+    options: {
+      includeArchivedInStats: 'Учитывать архивные в статистике',
+      showArchived: 'Показывать архивные кошельки',
+    },
+    page: {
+      currencies: 'Валюты',
+      none: 'Список',
+      type: 'Тип',
+    },
+    search: {
+      placeholder: 'Поиск',
+    },
+    showAll: 'Показать все',
+    showOnly: 'Показать только',
+    sortTitle: 'Сортировать кошельки',
+    title: 'Кошельки',
+  },
+  people: {
+    addFirst: 'Добавьте человека, которому вы дали или у которого взяли в долг.',
+    addTransaction: 'Добавить запись',
+    borrowMoney: 'Взять в долг',
+    deleteConfirm: 'Вы уверены, что хотите удалить этого человека и все записи?',
+    desc: 'Учет долгов: кто должен вам и кому должны вы.',
+    history: 'История долгов',
+    lendMoney: 'Дать в долг',
+    markPending: 'Сделать активным',
+    markSettled: 'Отметить закрытым',
+    netBalance: 'Баланс долгов',
+    new: 'Добавить человека',
+    noPeople: 'Контактов пока нет',
+    notes: 'Заметки',
+    search: 'Поиск людей...',
+    settleAll: 'Закрыть все',
+    settled: 'Все долги закрыты',
+    theyOweYou: 'должен вам',
+    title: 'Люди и долги',
+    totalBorrowed: 'Вы заняли',
+    totalLent: 'Вы одолжили',
+    youOweThem: 'вы должны',
+  },
+  recurring: {
+    activeRules: 'Активные правила',
+    createFirst: 'Создайте первое регулярное правило для прогноза расходов и доходов.',
+    daily: 'Ежедневно',
+    desc: 'Подписки, аренда, зарплата и регулярные счета.',
+    expenses: 'Регулярные расходы в месяц',
+    frequency: 'Периодичность',
+    income: 'Регулярные доходы в месяц',
+    interval: 'Интервал',
+    monthly: 'Ежемесячно',
+    monthlyEstimate: 'Оценка влияния в месяц',
+    net: 'Чистый регулярный итог',
+    new: 'Новое регулярное правило',
+    nextRun: 'Следующее списание',
+    noRules: 'Нет регулярных платежей',
+    recordNow: 'Записать сейчас',
+    successRecorded: 'Транзакция успешно записана',
+    title: 'Регулярные платежи',
+    weekly: 'Еженедельно',
+    yearly: 'Ежегодно',
+  },
+  security: {
+    biometric: 'Вход по биометрии',
+    biometricDisabled: 'Используйте отпечаток пальца или Face ID',
+    biometricEnabled: 'Биометрия включена',
+    choosePin: 'Введите новый PIN-код (4-6 цифр):',
+    confirmPin: 'Подтвердите PIN-код',
+    disable: 'Отключить',
+    enable: 'Включить',
+    enterCurrentPin: 'Введите текущий PIN-код для удаления:',
+    enterPin: 'Введите PIN для входа',
+    pinDisabled: 'Защитите доступ к приложению PIN-кодом.',
+    pinEnabled: 'PIN-код активен. Приложение блокируется при неактивности.',
+    pinLock: 'Защита PIN-кодом',
+    reenterPin: 'Повторите PIN-код для подтверждения:',
+    removePin: 'Удалить PIN',
+    setPin: 'Установить PIN',
+    title: 'Безопасность и блокировка',
+  },
+}

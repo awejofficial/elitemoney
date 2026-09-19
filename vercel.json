@@ -1,6 +1,8 @@
 {
-  "crons": [
-    { "path": "/api/cron/recurring", "schedule": "30 1 * * *" },
-    { "path": "/api/cron/lending-reminders", "schedule": "30 2 * * *" }
+  "buildCommand": "pnpm generate",
+  "outputDirectory": "app/.output/public",
+  "framework": null,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

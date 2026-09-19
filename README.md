@@ -1,135 +1,231 @@
-# PEIT — Personal Expense & Income Tracker
+<p align="center">
+  <img src="https://finapp.ilko.me/logo.png" alt="Finapp Logo" width="320" />
+</p>
 
-Track income, expenses, and money owed between friends and family — all in one place.
+# Finapp - Open Source Finance App
 
-PEIT is a **Progressive Web App (PWA)**: no app store needed. Add it to your phone's home screen straight from the browser — it runs full-screen, works offline, and can send due-date reminders via push notifications.
+**English** | [Русский](./README.ru.md)
 
-**Status:** v1 feature-complete (dev)
+> Your money, your control - anywhere, anytime.
 
----
+**Finapp** helps you easily track and manage personal finances. The repository is a pnpm monorepo with the Nuxt application and the documentation site.
 
-## Features
+## Live Demo
 
-| Feature | What it does |
-|---|---|
-| **Accounts & total balance** | Bank, cash, and wallet accounts rolled into one running total on the home screen — with each account's own balance always a tap away. |
-| **Custom income & expense categories** | Salary, SIP, Chit Fund and more come built in — pick your own icon and color, or add categories of your own. |
-| **Recurring transactions** | Set a SIP, EMI, or chit fund once and it logs itself every month, right on schedule — no manual re-entry. |
-| **Friends & family lending tracker** | Track money lent and borrowed per person, with a running net balance and partial or full settle-up. |
-| **Reports & calendar view** | Category breakdown (donut), a 6-month income vs. expense trend, and a calendar you can tap to see or add any day's activity. |
-| **PIN & biometric lock** | An optional PIN or Face ID / Touch ID lock on top of your account login — off by default, on when you want it. |
-| **Push reminders** | Web Push notifications for lending entries due today / overdue, plus a test button to verify delivery. |
-| **Installs like a real app** | Full manifest + service worker: standalone display, offline fallback, maskable icons. |
-
-## Tech stack
-
-| Layer | Choice |
-|---|---|
-| Framework | Next.js 16.3.5 (App Router, React 19, TypeScript strict) |
-| Styling | Tailwind CSS v4 with a custom semantic token theme |
-| Fonts | Fraunces (display) + Manrope (body) via `next/font` |
-| Backend / DB | Supabase — Postgres with Row Level Security, Auth, Database Views |
-| Auth | Supabase Auth (email + password), session via `@supabase/ssr` cookies |
-| PWA | `next-pwa` + hand-written Workbox service worker (`worker/index.js`) |
-| Push | Web Push with VAPID keys (`web-push`), subscriptions in Postgres |
-| Hosting | Vercel (app + `vercel.json` cron schedules) |
-
-## Getting started
-
-### 1. Prerequisites
-- Node.js 20+ (developed on Node 24)
-- A Supabase project (free tier is enough)
-
-### 2. Environment
-Copy `.env.local.example` to `.env.local` and fill in:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=...        # Supabase project URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...   # Supabase anon (publishable) key
-
-# Web Push — generate once with:
-#   node -e "console.log(require('web-push').generateVAPIDKeys())"
-NEXT_PUBLIC_VAPID_PUBLIC_KEY=...
-VAPID_PRIVATE_KEY=...
-VAPID_SUBJECT=mailto:you@example.com
-
-# Only needed for the Vercel Cron routes:
-SUPABASE_SERVICE_ROLE_KEY=...       # secret, server-only
-CRON_SECRET=...                     # random secret sent as Bearer token
-```
-
-### 3. Database
-Run the three migrations once, in order, in Supabase Dashboard → SQL Editor:
-
-1. `supabase/migrations/0001_schema.sql` — tables + views + RLS
-2. `supabase/migrations/0002_seed_categories.sql` — default categories per signup
-3. `supabase/migrations/0003_push_subscriptions.sql` — push subscription table
-
-### 4. Install & run
-
-```bash
-npm install
-npm run dev        # http://localhost:3000
-```
-
-> **Windows path note:** if the project folder path contains spaces and `&`
-> (as this one does), npm's bin shims can break. A clean workaround used for
-> this repo: `New-Item -ItemType Junction -Path ..\peit -Target .` and run
-> commands from the junction. See `memory.md` for details.
-
-### Scripts
-
-| Command | What it does |
-|---|---|
-| `npm run dev` | Dev server (webpack) at `localhost:3000` — PWA features disabled in dev |
-| `npm run build` | Production build |
-| `npm start` | Serve the production build |
-| `npm run lint` | ESLint |
-| `node scripts/generate-icons.mjs` | Regenerate PWA icon PNGs from `design/icon-maskable.svg` |
-
-## Project layout
-
-```
-src/
-  app/
-    (auth)/login, (auth)/signup      # auth screens (client components)
-    (app)/dashboard                  # home: total balance, recent tx, people
-    (app)/accounts, categories       # manage accounts & categories
-    (app)/transactions               # ledger + new transaction form
-    (app)/recurring                  # rules list + new rule form
-    (app)/people                     # lending tracker + settle-up
-    (app)/reports                    # donut, trend, calendar (searchParam month)
-    (app)/notifications              # push subscribe/unsubscribe + test
-    (app)/security                   # PIN & biometric enrollment
-    (app)/more                       # settings hub
-    api/cron/recurring               # scheduled rule runner (Bearer CRON_SECRET)
-    api/cron/lending-reminders       # scheduled push reminders
-    page.tsx                         # marketing landing page
-  components/                        # UI: forms, rows, nav, lock, reports
-  lib/
-    supabase/{client,server,middleware,database.types}.ts
-    recurring.ts                     # rule scheduler engine
-    appLock/{pin,biometric}.ts       # WebAuthn + hashed PIN lock
-    push/{client,send,lendingReminders}.ts
-supabase/migrations/                 # SQL schema (3 files)
-worker/index.js                      # Workbox service worker source
-public/                              # manifest, icons, offline.html, screenshots
-docs/                                # design directive, reference screenshots
-```
-
-## Deployment (Vercel)
-
-1. Push to Git and import into Vercel.
-2. Add all `.env.local` values to the Vercel project env vars (including `SUPABASE_SERVICE_ROLE_KEY` and `CRON_SECRET`).
-3. `vercel.json` registers two crons:
-   - `/api/cron/recurring` — daily 01:30 UTC — runs due recurring rules
-   - `/api/cron/lending-reminders` — daily 02:30 UTC — pushes due-date reminders
-   Vercel sends `Authorization: Bearer $CRON_SECRET` automatically.
+[finapp.ilko.me](https://finapp.ilko.me/)
 
 ## Documentation
 
-- [`product.md`](./product.md) — what PEIT is, feature specs, roadmap
-- [`architecture.md`](./architecture.md) — system design, data model, flows
-- [`design.md`](./design.md) — design system, tokens, components, motion
-- [`memory.md`](./memory.md) — environment notes, decisions, known issues
-- [`expense-tracker-prd.md`](./expense-tracker-prd.md) — original PRD (v1.0 draft)
+[finapp-docs.ilko.me](https://finapp-docs.ilko.me/)
+
+## Knowledge Graph
+
+Interactive map of the codebase architecture: [finapp-graph.ilko.me/en](https://finapp-graph.ilko.me/en/)
+
+## Why Finapp?
+
+- **Simple**: No clutter, no distractions - just your transactions and balances.
+- **Fast**: Works offline and syncs instantly across devices.
+- **Private**: You own your data - stored locally first and synced through your own Supabase backend.
+- **Flexible**: Supports multiple currencies with automatic exchange rates.
+- **Portable**: Optimized for mobile and desktop, installable as a PWA.
+
+## Features
+
+### Finance
+
+- **Wallets**: 6 types - cash, bank accounts, credit cards, deposits, crypto, debt.
+- **Transactions**: expense, income, transfer, adjustment with a built-in calculator.
+- **Categories**: hierarchical parent-child categories with custom icons and colors.
+- **Multi-currency**: 165+ currencies with automatic daily exchange rates.
+
+### Analytics
+
+- Dashboard with summary, expense, and income tabs.
+- Bar and line charts with an average line.
+- Flexible date ranges: day, week, month, year, or custom period.
+- Category breakdown with multiple display modes.
+- Multi-select filters by wallet and category.
+
+### Offline & Sync
+
+- Offline-first PWA that works without an internet connection.
+- Local-first SQLite storage with automatic background sync on reconnect.
+- Real-time sync across devices via PowerSync.
+
+### Customization
+
+- Light, Dark, and System color modes.
+- 20+ primary colors and 5 neutral palettes.
+- Adjustable border radius.
+- Per-tab dashboard widget configuration.
+- English and Russian interface.
+
+## Tech Stack
+
+- Vue 3
+- Nuxt 4
+- Pinia
+- @nuxt/ui v4 and Tailwind CSS v4
+- Supabase (Postgres)
+- PowerSync
+- Supabase Auth
+- Docus
+- pnpm workspaces
+
+## Repository Structure
+
+```text
+finapp/
+  app/    # Nuxt application, Supabase + PowerSync config, tests, app assets
+  docs/   # Docus documentation site
+```
+
+The root package contains workspace scripts only. App and docs dependencies are kept in their own package manifests.
+
+## Getting Started
+
+### Requirements
+
+- Node.js `>=24.12.0`
+- pnpm `11.x`
+- Docker and the [Supabase CLI](https://supabase.com/docs/guides/cli) for the local backend
+
+### Install
+
+```bash
+git clone https://github.com/ilkome/finapp.git finapp
+cd finapp
+pnpm install
+```
+
+### Configure the app
+
+Copy the app environment example and fill in your Supabase and PowerSync values:
+
+```bash
+cp app/.env.example app/.env
+```
+
+Required environment variables:
+
+```bash
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_POWERSYNC_URL=your_powersync_url
+```
+
+For local development these point at the local stack started below: Supabase on `http://localhost:54321` and PowerSync on `http://localhost:8080`.
+
+### Local backend
+
+The backend is local self-hosted Supabase (Postgres + Auth) plus a self-hosted PowerSync service. Run these once from the `app/` workspace:
+
+```bash
+cd app
+
+# 1. Start Supabase (Postgres + Auth on :54321)
+supabase start
+
+# 2. Apply the PowerSync replication setup (role + publication)
+docker exec -i supabase_db_app psql -U postgres -d postgres < supabase/powersync_setup.sql
+
+# 3. Start the PowerSync service (:8080)
+docker compose -f powersync/docker-compose.yaml up -d
+```
+
+The login screen offers **Sign in with Google** and **Demo mode**. Email/password stays enabled in the Supabase backend - used by the local seed test user for E2E - but is not exposed in the UI.
+
+### Seed data (local test user)
+
+`supabase db reset` applies `app/supabase/seed.sql`, which creates a fixed email/password test user (`e2e@finapp.local`) plus a demo-derived dataset (8 wallets, 32 categories, ~860 transactions). This lets agents / Playwright enter real PowerSync mode without Google OAuth. Apply it to a running DB without a reset:
+
+```bash
+docker exec -i supabase_db_app psql -U postgres -d postgres < app/supabase/seed.sql
+```
+
+See [Testing](docs/content/en/2.development/06.testing.md) for the test-user sign-in flow (`app/scripts/dev-login.mjs`) and how the seed is regenerated.
+
+### Google sign-in (optional, local)
+
+The login screen shows a **Sign in with Google** button. To make it work against the local stack:
+
+1. In the [Google Cloud Console](https://console.cloud.google.com/apis/credentials), create an **OAuth 2.0 Client ID** (Web application) and add the local Supabase callback as an authorized redirect URI:
+
+   ```text
+   http://127.0.0.1:54321/auth/v1/callback
+   ```
+
+2. Put the client id/secret in `app/.env` (the Supabase CLI loads `.env` from the directory you run it in; these feed `env()` in `app/supabase/config.toml` and are **not** shipped to the client):
+
+   ```bash
+   SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID=your_google_client_id
+   SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET=your_google_client_secret
+   ```
+
+3. Restart Supabase so it re-reads the config and env (`supabase stop && supabase start`).
+
+The Google provider is already enabled in `app/supabase/config.toml` (`[auth.external.google]`, `skip_nonce_check = true` for local). Leaving the env vars empty just keeps the button non-functional - email/password still works. For **production**, configure Google in the hosted Supabase dashboard instead (see [Deployment](docs/content/en/2.development/05.deployment.md)).
+
+### Environment files
+
+The app workspace uses several `.env` files (all gitignored except `.env.example`):
+
+| File | Purpose |
+| --- | --- |
+| `app/.env` | Dev values, read by Nuxt |
+| `app/.env.prod` | Prod values, used by `pnpm dev:prod` |
+
+## Development
+
+With the local backend running, start the Nuxt app:
+
+```bash
+pnpm dev
+```
+
+The app runs at `http://localhost:3050`.
+
+Run the documentation site:
+
+```bash
+pnpm docs:dev
+```
+
+The docs run at `http://localhost:3051`.
+
+Run the app and docs dev servers together:
+
+```bash
+pnpm dev:all
+```
+
+## Scripts
+
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Start the app dev server |
+| `pnpm docs:dev` | Start the documentation dev server |
+| `pnpm dev:all` | Start app and docs dev servers in parallel |
+| `pnpm build` | Build all workspace packages that define `build` |
+| `pnpm generate` | Generate the app for static hosting |
+| `pnpm docs:build` | Build the documentation site |
+| `pnpm lint` | Run root-owned linting for the monorepo |
+| `pnpm lint:app` | Run linting for the app package |
+| `pnpm lint:docs` | Run linting for the docs package |
+| `pnpm lint:fix` | Run linting with automatic fixes |
+| `pnpm test` | Run tests in workspace packages |
+| `pnpm typecheck` | Run type checks in workspace packages |
+
+## Documentation
+
+User guides, development notes, and technical reference live in [`docs/content`](docs/content). 
+Start the docs site with `pnpm docs:dev`.
+
+## Previous Version
+
+The previous version of Finapp, built on Firebase, is available in the [`firebase`](https://github.com/ilkome/finapp/tree/firebase) branch.
+
+## Stay Connected
+
+- Telegram: [@ilkome](https://t.me/ilkome)

@@ -1,0 +1,44 @@
+<script setup lang="ts">
+defineProps<{
+  amount: number
+  amountRaw: string
+  highlight?: 'income' | 'expense'
+  isShowSum: boolean
+  isTransfer?: boolean
+}>()
+
+const emit = defineEmits<{
+  change: [value: string]
+}>()
+
+const { t } = useI18n()
+</script>
+
+<template>
+  <div class="relative">
+    <div
+      :class="[{
+        'opacity-0': !isShowSum,
+        'left-3': isTransfer,
+        'left-1/2 -translate-x-1/2': !isTransfer,
+      }]"
+      class="text-highlighted/60 pointer-events-none absolute top-2 text-center text-sm"
+      tabindex="0"
+    >
+      {{ amount }}
+    </div>
+
+    <FormInput
+      :class="{
+        '!text-income-1 placeholder:!text-income-1': highlight === 'income',
+        '!text-expense-1 placeholder:!text-expense-1': highlight === 'expense',
+        'text-center': !isTransfer,
+      }"
+      :placeholder="t('trnForm.enterAmount')"
+      :modelValue="amountRaw"
+      class="swiper-no-swiping font-secondary border-transparent bg-transparent pt-6 pb-2 text-center !text-3xl placeholder:text-3xl"
+      inputmode="tel"
+      @update:modelValue="(value: string) => emit('change', value || '')"
+    />
+  </div>
+</template>

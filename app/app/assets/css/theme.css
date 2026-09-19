@@ -1,0 +1,68 @@
+:root {
+  --chart-label: var(--ui-text-dimmed);
+  --chart-line: var(--ui-border);
+  --chart-splitLine: var(--ui-border-accented);
+  --chart-axisLabel: var(--ui-text-highlighted);
+}
+
+/*
+ * Dark Theme
+*/
+.dark {
+  color-scheme: dark;
+
+  --ui-bg: var(--ui-color-neutral-900);
+  --ui-bg-muted: var(--ui-color-neutral-950);
+  --ui-bg-elevated: var(--ui-color-neutral-800);
+  --ui-bg-accented: var(--ui-color-neutral-800);
+  --ui-border: var(--ui-color-neutral-700);
+  --ui-border-accented: var(--ui-color-neutral-800);
+
+  --ui-secondary: var(--ui-color-secondary-400);
+  --ui-success: var(--ui-color-success-400);
+  --ui-info: var(--ui-color-info-400);
+  --ui-warning: var(--ui-color-warning-400);
+  --ui-error: var(--ui-color-error-400);
+
+  --color-overlay: #000000cc;
+}
+
+/*
+ * Light Theme
+*/
+.light {
+  color-scheme: light;
+
+  --ui-bg: white;
+  --ui-bg-muted: var(--ui-color-neutral-50);
+  --ui-bg-elevated: var(--ui-color-neutral-200);
+  --ui-bg-accented: var(--ui-color-neutral-100);
+  --ui-border: var(--ui-color-neutral-400);
+  --ui-border-accented: var(--ui-color-neutral-100);
+
+  --ui-secondary: var(--ui-color-secondary-500);
+  --ui-success: var(--ui-color-success-500);
+  --ui-info: var(--ui-color-info-500);
+  --ui-warning: var(--ui-color-warning-500);
+  --ui-error: var(--ui-color-error-500);
+
+  --color-overlay: #00000099;
+}
+
+@theme static {
+  --color-overlay: #00000099;
+  --color-expense-1: oklch(0.63 0.24 24.81);
+  --color-expense-2: oklch(0.63 0.24 24.81 / 0.5);
+  --color-income-1: oklch(0.65 0.2 142.06);
+  --color-income-2: oklch(0.65 0.2 142.06 / 0.5);
+  --color-icon-primary: var(--color-neutral-50);
+  --text-2xs: 10px;
+  --breakpoint-3sm: 360px;
+}
+
+@theme {
+  --font-brand: Nunito, Roboto, sans-serif;
+  --font-primary: Roboto, sans-serif;
+  --font-secondary: Unica One, Roboto, sans-serif;
+  --font-tertiary: Roboto, sans-serif;
+}

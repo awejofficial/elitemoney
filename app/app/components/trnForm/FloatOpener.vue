@@ -1,0 +1,32 @@
+<script setup lang="ts">
+import { useTrnsFormStore } from '~/components/trnForm/useTrnsFormStore'
+
+const { openFormForCreate, ui } = useTrnsFormStore()
+</script>
+
+<template>
+  <div
+    v-if="!ui.isShow"
+    class="
+      group to-elevated fixed top-0 right-0 h-full w-[300px]
+      items-end justify-end from-transparent
+      transition hover:bg-gradient-to-r xl:flex
+    "
+    @click="openFormForCreate()"
+  >
+    <div
+      class="
+        text-icon-primary sticky right-0
+        bottom-0 flex items-center
+        justify-center rounded-full
+        px-4 py-5 text-2xl
+        opacity-70
+        transition
+        group-hover:scale-125
+        group-hover:opacity-100
+      "
+    >
+      <Icon name="hugeicons:plus-sign-square" />
+    </div>
+  </div>
+</template>

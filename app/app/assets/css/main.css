@@ -1,0 +1,41 @@
+@import 'tailwindcss' theme(static);
+@import '@nuxt/ui';
+@import './theme.css';
+@import './utility.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@custom-variant hover {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @slot;
+    }
+  }
+
+  &:active {
+    @slot;
+  }
+}
+
+@layer base {
+  html,
+  body {
+    @apply antialiased text-default bg-muted/30 select-none;
+    overscroll-behavior-y: none;
+  }
+
+  /* Reka UI popper portals (UPopover, UDropdownMenu, UContextMenu, UTooltip)
+     render at body level with inline z-index: auto. Bump above BottomSheet (z-50)
+     and trnForm Sidebar (z-50) so nested menus stay clickable inside modals. */
+  [data-reka-popper-content-wrapper] {
+    z-index: 60 !important;
+  }
+
+  /* On open, reka-ui locks the page via `pointer-events: none` on <body>, but the
+     menu content never gets `pointer-events: auto` back (the trnForm overlay breaks
+     the DismissableLayer stack), so clicks/taps pass through the menu to the element
+     underneath. Re-enable pointer events on the menu wrapper itself. */
+  [data-reka-popper-content-wrapper]:has([role='menu']) {
+    pointer-events: auto !important;
+  }
+}

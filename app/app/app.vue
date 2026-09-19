@@ -1,0 +1,68 @@
+<script setup lang="ts">
+import type { ToasterProps } from '@nuxt/ui'
+
+import { useGuard } from '~/components/user/useGuard'
+
+const appConfig = useAppConfig()
+const colorMode = useColorMode()
+const { t } = useI18n()
+const toaster: ToasterProps = {
+  position: 'top-left',
+  progress: false,
+}
+
+useEventListener(document, 'click', (e) => {
+  const target = e.target as HTMLElement
+  const toast = target.closest('li[role="alert"][data-slot="base"]')
+  if (!toast)
+    return
+  const closeBtn = toast.querySelector<HTMLButtonElement>('[data-reka-toast-announce-exclude]')
+  closeBtn?.click()
+})
+
+const isDark = usePreferredDark()
+const color = computed(() => (colorMode.value === 'dark' || (colorMode.value === 'system' && isDark.value)) ? '#171717' : 'white')
+const blackAsPrimary = computed(() => appConfig.theme.blackAsPrimary ? `:root { --ui-primary: black; } .dark { --ui-primary: #ededed; }` : ':root {}')
+const radius = computed(() => `:root { --ui-radius: ${appConfig.theme.radius ?? 0.375}rem; }`)
+
+useHead({
+  htmlAttrs: {
+    lang: useI18n().locale.value,
+  },
+  link: [
+    { href: '/favicon.png', rel: 'icon', type: 'image/png' },
+    { href: '/favicon.svg', rel: 'icon', type: 'image/svg+xml' },
+  ],
+  meta: [
+    { charset: 'utf-8' },
+    { content: 'width=device-width, initial-scale=1, viewport-fit=cover', name: 'viewport' },
+    { content: color, key: 'theme-color', name: 'theme-color' },
+  ],
+  style: [
+    { id: 'nuxt-ui-black-as-primary', innerHTML: blackAsPrimary, tagPriority: -2 },
+    { id: 'nuxt-ui-radius', innerHTML: radius, tagPriority: -2 },
+  ],
+})
+
+useSeoMeta({
+  description: t('app.desc'),
+  ogDescription: t('app.desc'),
+  ogTitle: (chunk?: string) => chunk ? `${chunk} - ${t('appName')}` : t('appName'),
+  titleTemplate: (chunk?: string) => chunk ? `${chunk} - ${t('appName')}` : t('appName'),
+})
+
+useGuard()
+</script>
+
+<template>
+  <UApp :toaster="toaster">
+    <NuxtLoadingIndicator :height="2" color="var(--ui-primary)" />
+    <NuxtPwaManifest />
+
+    <NuxtLayout v-slot="{ keepalive }">
+      <NuxtPage :keepalive="keepalive" />
+    </NuxtLayout>
+
+    <SecurityAppLockOverlay />
+  </UApp>
+</template>

@@ -1,53 +1,66 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+# Generated service worker output (not the source in service-worker/)
+/sw.*
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Node dependencies
+node_modules
 
-# testing
-/coverage
+# Logs
+logs
+*.log
 
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
+# Misc
 .DS_Store
-*.pem
+.fleet
+.idea
+.claude/settings.local.json
+**/.claude/settings.local.json
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+# Playwright
+/test-results
+**/test-results/
+/blob-report
+**/blob-report/
+playwright/profiles
+**/playwright/profiles
+playwright/.auth
+**/playwright/.auth
+playwright/output
+**/playwright/output
+playwright-report
+**/playwright-report
+playwright/.cache
+**/playwright/.cache
+.playwright-mcp
+**/.playwright-mcp
+tests/e2e/.auth
+**/tests/e2e/.auth
 
-# env files (can opt-in for committing if needed)
-.env*
+# Local env files
+.env
+.env.*
+!.env.example
 
-# vercel
+
+# Migration data
+utils/migrate/data.json
+
+# Generated knowledge-graph / tooling output (regenerated locally, not source)
+graphify-out
+**/graphify-out
+.understand-anything/
+
+# Local planning scratch (not source)
+plans/
+
+# Vercel CLI link (local)
 .vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# next-pwa generated service worker files
-/public/sw.js
-/public/workbox-*.js
-/public/worker-*.js
-/public/sw.js.map
-/public/workbox-*.js.map
-/public/worker-*.js.map
-
-docs/.npm-cache/
-.vercel
-.env*
+# PowerSync Cloud config (local; redeploy via `powersync deploy`)
+app/.powersync-cloud
+app/scripts/.demo-snapshot.json

@@ -1,0 +1,46 @@
+@utility interactive {
+  @apply select-none hover:bg-elevated/50;
+}
+
+@utility flex-center {
+  @apply flex items-center justify-center;
+}
+
+@utility pageWrapper {
+  @apply @xl/page:max-w-2xl grow px-3 @md/page:px-4;
+}
+
+@utility bottomSheetDragClassesCustom {
+  @apply bg-default max-w-md rounded-xl;
+}
+
+@utility bottomSheetContent {
+  @apply grid h-full max-h-[98dvh] grid-rows-[auto_1fr_auto] overflow-hidden;
+  padding-bottom: calc(env(safe-area-inset-bottom) - 22px);
+}
+
+@utility bottomSheetContentInside {
+  @apply grid h-full bg-default gap-1 overflow-hidden overflow-y-auto px-2 py-px;
+}
+
+@utility bottomSheetContentBottom {
+  @apply flex items-center justify-center p-2;
+}
+
+@utility scrollerBlock {
+  &::-webkit-scrollbar {
+    @apply w-1.5 h-1.5;
+  }
+
+  &::-webkit-scrollbar-track {
+    @apply bg-transparent rounded-[10px];
+  }
+
+  &::-webkit-scrollbar-thumb {
+    @apply bg-gray-500 rounded-[10px];
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-600;
+  }
+}

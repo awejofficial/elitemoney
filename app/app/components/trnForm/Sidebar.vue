@@ -1,0 +1,118 @@
+<script setup lang="ts">
+import Swiper from 'swiper'
+import { Pagination } from 'swiper/modules'
+
+import { useTrnsFormStore } from '~/components/trnForm/useTrnsFormStore'
+import { TrnType } from '~/components/trns/types'
+import { closeAllContextMenus } from '~/composables/useContextMenuRegistry'
+
+import 'swiper/css'
+
+const { t } = useI18n()
+const trnsFormStore = useTrnsFormStore()
+const isShow = computed(() => trnsFormStore.ui.isShow)
+
+const sliderRef = ref<HTMLElement | null>(null)
+const sliderObj = ref<Swiper | null>(null)
+
+function init() {
+  if (!sliderObj.value) {
+    sliderObj.value = new Swiper(sliderRef.value!, {
+      init: true,
+      initialSlide: 0,
+      longSwipesMs: 60,
+      longSwipesRatio: 0.1,
+      modules: [Pagination],
+      pagination: {
+        clickable: true,
+        el: '.trnForm__pagination',
+      },
+      shortSwipes: false,
+      slidesPerView: 'auto',
+    })
+  }
+}
+
+watch(isShow, async (v) => {
+  if (v) {
+    closeAllContextMenus()
+    await nextTick()
+    init()
+  }
+  else {
+    sliderObj.value?.destroy()
+    sliderObj.value = null
+  }
+})
+</script>
+
+<template>
+  <Transition name="fadeIn" appear>
+    <div
+      v-if="isShow"
+      class="trnForm @container/trnForm fixed inset-y-0 right-0 z-50 h-dvh w-[360px] py-4"
+    >
+      <div class="relative h-full overflow-hidden rounded-l-xl shadow-2xl">
+        <div class="absolute top-2 right-2">
+          <BottomSheetClose @click="trnsFormStore.onClose()" />
+        </div>
+
+        <div ref="sliderRef" class="swiper-container bg-default h-full">
+          <div class="swiper-wrapper">
+            <!-- Main -->
+            <div class="swiper-slide h-full">
+              <div class="scrollerBlock grid h-full grid-rows-[auto_1fr] items-start gap-4 overflow-y-auto overscroll-contain">
+                <TrnFormMain
+                  maxHeight="100vh"
+                  class="!pb-0"
+                />
+                <div
+                  v-if="trnsFormStore.values.trnType !== TrnType.Transfer"
+                  class="grid gap-2 pb-6"
+                >
+                  <TrnFormSelectionCategoriesFast
+                    @selectCategory="id => trnsFormStore.values.categoryId = id"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick selector -->
+            <div
+              class="swiper-slide"
+              :style="{ height: '100%' }"
+            >
+              <div class="scrollerBlock h-full overflow-y-auto overscroll-contain">
+                <UiTitleSection class="bg-default sticky top-0 z-10 px-4 pt-5 pb-3 md:text-xl">
+                  {{ t('trns.history') }}
+                </UiTitleSection>
+
+                <TrnFormTrnsSlide
+                  :slider="sliderObj"
+                  :mainSlideIdx="0"
+                  class="px-2 pb-6"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="trnForm__pagination" />
+      </div>
+    </div>
+  </Transition>
+</template>
+
+<style>
+@reference '../../assets/css/main.css';
+
+.fadeIn-enter-active,
+.fadeIn-leave-active {
+  @apply opacity-100 translate-x-0 transition-all duration-300 ease-in-out;
+}
+
+.fadeIn-enter-from,
+.fadeIn-leave-to {
+  @apply opacity-0 translate-x-full;
+}
+</style>
