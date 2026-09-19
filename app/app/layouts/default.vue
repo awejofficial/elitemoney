@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { useInitApp } from '~/components/app/useInitApp'
 import { useCategoriesStore } from '~/components/categories/useCategoriesStore'
+import { useDemo } from '~/components/demo/useDemo'
 import { useMenuData } from '~/components/layout/useMenuData'
 import { useSearch } from '~/components/search/useSearch'
 import { useTrnsFormStore } from '~/components/trnForm/useTrnsFormStore'
+import { useUserStore } from '~/components/user/useUserStore'
 import { useWalletsStore } from '~/components/wallets/useWalletsStore'
 
 const keepalive = ['Categories', 'CategoriesId', 'Wallets', 'WalletsId', 'Dashboard']
 
-const { t } = useI18n()
+const { locale, t } = useI18n()
+const userStore = useUserStore()
+const { generateDemoData, isDemo } = useDemo()
 const categoriesStore = useCategoriesStore()
 const trnsFormStore = useTrnsFormStore()
 const walletsStore = useWalletsStore()
@@ -16,6 +20,17 @@ const { isMenuOpen } = useMenuData()
 const { isSearchOpen } = useSearch()
 const { bootState, initApp, isHydrated, isOnboarded, isOnboardedHint } = useInitApp()
 const { width } = useWindowSize()
+
+async function openDemoFromError() {
+  isDemo.value = 'true'
+  await generateDemoData(locale.value)
+  window.location.href = '/dashboard'
+}
+
+async function signOutFromError() {
+  await userStore.signOut()
+  window.location.href = '/login'
+}
 
 const isShowSidebar = useCookie('finapp.isShowSidebar', { default: () => true })
 
@@ -81,16 +96,36 @@ defineShortcuts({
       class="flex-center h-dvh flex-col gap-6 px-4 text-center"
     >
       <UiLogo size="lg" />
-      <p class="text-muted">
+      <p class="text-muted max-w-sm">
         {{ t('app.loadError') }}
       </p>
-      <UButton
-        size="xl"
-        class="min-w-52 justify-center rounded-full px-8 py-3"
-        @click="() => { void initApp() }"
-      >
-        {{ t('app.retry') }}
-      </UButton>
+      <div class="flex flex-col gap-3 min-w-56">
+        <UButton
+          size="xl"
+          class="justify-center rounded-full px-8 py-3"
+          @click="() => { void initApp() }"
+        >
+          {{ t('app.retry') }}
+        </UButton>
+        <UButton
+          variant="outline"
+          color="secondary"
+          size="lg"
+          class="justify-center rounded-full px-8 py-2"
+          @click="openDemoFromError"
+        >
+          {{ t('demo.try', 'Try Demo Mode') }}
+        </UButton>
+        <UButton
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          class="justify-center text-xs"
+          @click="signOutFromError"
+        >
+          {{ t('user.signOut', 'Sign Out / Switch Account') }}
+        </UButton>
+      </div>
     </div>
 
     <template v-else>

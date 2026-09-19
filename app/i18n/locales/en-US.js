@@ -17,14 +17,14 @@ export default {
 
   app: {
     about: 'About',
-    desc: 'Finapp helps you to control personal finances easily and efficiently.',
+    desc: 'EliteMoney helps you to control personal finances easily and efficiently.',
     loadError: 'Could not load your data. Check your connection and try again.',
     retry: 'Try again',
     toggleSidebar: 'Toggle sidebar',
     version: 'Version',
   },
 
-  appName: 'Finapp',
+  appName: 'EliteMoney',
 
   base: {
     add: 'Create',

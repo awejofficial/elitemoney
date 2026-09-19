@@ -24,7 +24,7 @@ export default {
     version: 'Версия',
   },
 
-  appName: 'Финапка',
+  appName: 'EliteMoney',
 
   base: {
     add: 'Создать',
