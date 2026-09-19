@@ -232,9 +232,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      powersyncUrl: process.env.VITE_POWERSYNC_URL || process.env.POWERSYNC_URL || 'https://demo.powersync.co',
-      supabaseAnonKey: process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlbW8iLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYwMDAwMDAwMCwiZXhwIjoyMDAwMDAwMDAwfQ.demo',
-      supabaseUrl: process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://demo.supabase.co',
+      powersyncUrl: process.env.VITE_POWERSYNC_URL || process.env.POWERSYNC_URL || 'https://6aae53cc8453e7cf83384914.powersync.journeyapps.com',
+      supabaseAnonKey: process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrbmxkemdhZGtxY2p6d3dkbnp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzIwNzAsImV4cCI6MjEwNTMwODA3MH0.E1U2b3tHwDkw3mnabsC5AszwaJNXqkFwNOXeqZFzUaY',
+      supabaseUrl: process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hknldzgadkqcjzwwdnzy.supabase.co',
     },
   },
 
