@@ -95,11 +95,14 @@ export default defineNuxtConfig({
         'hugeicons:archive-01',
         'hugeicons:bank',
         'hugeicons:folder-library',
+        'hugeicons:invoice-03',
         'hugeicons:laptop-programming',
         'hugeicons:menu-01',
         'hugeicons:money-exchange-01',
         'hugeicons:plus-sign-square',
+        'hugeicons:repeat',
         'hugeicons:settings-01',
+        'hugeicons:user-multiple-02',
         'hugeicons:wallet-01',
         'lucide:chart-no-axes-combined',
         'lucide:folder',
@@ -176,7 +179,7 @@ export default defineNuxtConfig({
         type: 'image/png',
       }],
       id: '/',
-      name: 'Finapp',
+      name: 'EliteMoney',
       screenshots: [{
         form_factor: 'wide',
         sizes: '1920x1080',
@@ -188,7 +191,7 @@ export default defineNuxtConfig({
         src: 'screenshot-mobile.png',
         type: 'image/png',
       }],
-      short_name: 'Finapp',
+      short_name: 'EliteMoney',
       start_url: '/dashboard',
       theme_color: '#171717',
     },
@@ -196,6 +199,7 @@ export default defineNuxtConfig({
     workbox: {
       globIgnores: ['**/200*', '**/404*'],
       globPatterns: ['**/*.{js,json,css,html,png,svg,ico,woff2}', '**/wa-sqlite-async.*.wasm'],
+      importScripts: ['/sw-push.js'],
       maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       navigateFallback: '/',
       runtimeCaching: [
@@ -235,6 +239,7 @@ export default defineNuxtConfig({
       powersyncUrl: process.env.VITE_POWERSYNC_URL || process.env.POWERSYNC_URL || 'https://6aae53cc8453e7cf83384914.powersync.journeyapps.com',
       supabaseAnonKey: process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrbmxkemdhZGtxY2p6d3dkbnp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MzIwNzAsImV4cCI6MjEwNTMwODA3MH0.E1U2b3tHwDkw3mnabsC5AszwaJNXqkFwNOXeqZFzUaY',
       supabaseUrl: process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hknldzgadkqcjzwwdnzy.supabase.co',
+      vapidPublicKey: process.env.VITE_VAPID_PUBLIC_KEY || 'BKpPNYWS-P4xd9rbR9k2tOfowDaBWRlmcm011Bd0_TJw1X4AOgtMsgM4yzgapn5owQsUb358_RM9-QjywofUOJU',
     },
   },
 

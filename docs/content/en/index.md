@@ -1,6 +1,6 @@
 ---
 seo:
-  title: Finapp - Personal Finance Manager
+  title: EliteMoney - Personal Finance Manager
   description: Open-source personal finance app. Track expenses, manage wallets, and analyze your spending. Works offline, syncs across devices.
 ---
 
