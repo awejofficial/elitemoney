@@ -53,6 +53,10 @@ export function useMenuData() {
         icon: 'hugeicons:repeat',
         name: t('recurring.title', 'Recurring'),
       },
+      tabs: {
+        icon: 'hugeicons:invoice-03',
+        name: t('tabs.title', 'Daily Tabs & Mess'),
+      },
       currencies: {
         icon: 'hugeicons:money-exchange-01',
         name: t('currencies.page.title'),

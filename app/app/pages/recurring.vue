@@ -177,25 +177,26 @@ function getCategoryColor(id: string) {
       </template>
     </UiHeader>
 
-    <div class="pageWrapper">
-      <div class="grid gap-4 px-2 pt-2 pb-16 @3xl/main:max-w-2xl">
+    <div class="pageWrapper mb-4 rounded-xl pt-1 pb-24 lg:pb-8">
+      <div class="grid gap-3.5 px-2 pt-1 @3xl/main:max-w-2xl">
         <!-- Monthly Estimate Card -->
-        <div class="rounded-xl border border-default bg-elevated/40 p-4 backdrop-blur flex items-center justify-between">
+        <div class="rounded-xl border border-default bg-elevated/40 p-3.5 backdrop-blur flex items-center justify-between">
           <div>
-            <div class="text-xs font-medium text-muted">
+            <div class="text-2xs sm:text-xs font-medium text-muted">
               {{ t('recurring.monthlyEstimate') }}
             </div>
-            <div class="pt-1.5 flex items-baseline gap-1.5">
+            <div class="pt-1 flex items-baseline gap-1.5 overflow-hidden">
               <Amount
                 :amount="Math.round(recurringStore.monthlyExpenseEstimate)"
                 :currencyCode="currenciesStore.base"
                 variant="xl"
+                class="text-base sm:text-xl"
               />
-              <span class="text-xs text-muted font-normal">/ {{ t('recurring.monthly').toLowerCase() }}</span>
+              <span class="text-2xs text-muted font-normal">/ {{ t('recurring.monthly').toLowerCase() }}</span>
             </div>
           </div>
-          <div class="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Icon name="lucide:calendar-clock" size="22" />
+          <div class="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
+            <Icon name="lucide:calendar-clock" size="20" />
           </div>
         </div>
 
@@ -227,43 +228,44 @@ function getCategoryColor(id: string) {
         </div>
 
         <!-- Rules List -->
-        <div v-else class="grid gap-1">
+        <div v-else class="grid gap-0.5 rounded-xl border border-default/60 bg-elevated/20 overflow-hidden">
           <UiElement
             v-for="rule in recurringStore.rulesList"
             :key="rule.id"
-            insideClasses="p-3 min-h-[56px] flex items-center justify-between"
+            :lineWidth="2"
+            insideClasses="py-2.5 px-3 min-h-[54px] flex items-center justify-between"
             :class="{ 'opacity-50': !rule.active }"
             class="group cursor-pointer"
             @click="openEditModal(rule)"
           >
             <!-- Left side: Category Icon & Details -->
-            <div class="flex items-center gap-3 min-w-0">
+            <template #leftIcon>
               <UiIconBase
                 :name="getCategoryIcon(rule.categoryId)"
                 :color="getCategoryColor(rule.categoryId)"
                 invert
               />
+            </template>
 
-              <div class="min-w-0 truncate">
-                <div class="font-medium text-highlighted text-sm flex items-center gap-2 truncate">
-                  <span class="truncate">{{ rule.name }}</span>
-                  <UBadge size="xs" color="neutral" variant="subtle" class="capitalize text-3xs shrink-0">
-                    {{ rule.frequency }}
-                  </UBadge>
-                </div>
-                <div class="text-3xs text-dimmed flex items-center gap-1.5 pt-0.5 truncate">
-                  <span>{{ getCategoryName(rule.categoryId) }}</span>
-                  <span>•</span>
-                  <span>{{ getWalletName(rule.walletId) }}</span>
-                  <span>•</span>
-                  <span class="text-amber-500 font-medium">
-                    {{ t('recurring.nextRun') }}: {{ formatDate(rule.nextRunDate) }}
-                  </span>
-                </div>
+            <div class="grid grow gap-0.5 overflow-hidden pr-2">
+              <div class="font-medium text-highlighted text-sm leading-tight flex items-center gap-1.5 truncate">
+                <span class="truncate">{{ rule.name }}</span>
+                <UBadge size="xs" color="neutral" variant="subtle" class="capitalize text-3xs shrink-0">
+                  {{ rule.frequency }}
+                </UBadge>
+              </div>
+              <div class="text-3xs text-dimmed flex items-center gap-1.5 pt-0.5 truncate">
+                <span class="truncate">{{ getCategoryName(rule.categoryId) }}</span>
+                <span>•</span>
+                <span class="truncate">{{ getWalletName(rule.walletId) }}</span>
+                <span>•</span>
+                <span class="text-amber-500 font-medium shrink-0">
+                  {{ formatDate(rule.nextRunDate) }}
+                </span>
               </div>
             </div>
 
-            <!-- Right side: Amount, Run, Switch, Edit, Delete -->
+            <!-- Right side: Clean Amount, Switch, and Actions -->
             <div class="flex items-center gap-2 shrink-0">
               <Amount
                 :amount="rule.amount"
@@ -275,21 +277,6 @@ function getCategoryColor(id: string) {
                 align="right"
               />
 
-              <!-- Record Now / Play button -->
-              <button
-                type="button"
-                :title="t('recurring.recordNow')"
-                :disabled="isExecuting === rule.id"
-                class="interactive flex size-7 items-center justify-center rounded-md text-primary hover:bg-primary/10"
-                @click="handleExecute(rule.id, $event)"
-              >
-                <Icon
-                  :name="isExecuting === rule.id ? 'lucide:loader-circle' : 'lucide:play'"
-                  :class="{ 'animate-spin': isExecuting === rule.id }"
-                  size="15"
-                />
-              </button>
-
               <!-- Active Toggle Switch -->
               <USwitch
                 :model-value="rule.active"
@@ -298,25 +285,36 @@ function getCategoryColor(id: string) {
                 @update:model-value="recurringStore.toggleActive(rule.id)"
               />
 
-              <!-- Edit Button -->
-              <button
-                type="button"
-                :title="t('recurring.edit')"
-                class="interactive flex size-7 items-center justify-center rounded-md text-muted hover:text-highlighted hover:bg-elevated"
-                @click="openEditModal(rule, $event)"
-              >
-                <Icon name="lucide:pencil" size="14" />
-              </button>
+              <!-- Desktop-only Quick Action Buttons -->
+              <div class="hidden sm:flex items-center gap-1">
+                <!-- Record Now / Play button -->
+                <button
+                  type="button"
+                  :title="t('recurring.recordNow')"
+                  :disabled="isExecuting === rule.id"
+                  class="interactive flex size-7 items-center justify-center rounded-lg text-primary hover:bg-primary/10"
+                  @click="handleExecute(rule.id, $event)"
+                >
+                  <Icon
+                    :name="isExecuting === rule.id ? 'lucide:loader-circle' : 'lucide:play'"
+                    :class="{ 'animate-spin': isExecuting === rule.id }"
+                    size="14"
+                  />
+                </button>
 
-              <!-- Delete Button -->
-              <button
-                type="button"
-                :title="$t('base.delete')"
-                class="interactive flex size-7 items-center justify-center rounded-md text-muted hover:text-error hover:bg-error/10"
-                @click.stop="deleteRuleId = rule.id"
-              >
-                <Icon name="lucide:trash-2" size="14" />
-              </button>
+                <!-- Delete Button -->
+                <button
+                  type="button"
+                  :title="$t('base.delete')"
+                  class="interactive flex size-7 items-center justify-center rounded-lg text-muted hover:text-error hover:bg-elevated/80"
+                  @click.stop="deleteRuleId = rule.id"
+                >
+                  <Icon name="lucide:trash-2" size="14" />
+                </button>
+              </div>
+
+              <!-- Mobile Chevron -->
+              <Icon name="lucide:chevron-right" size="16" class="text-dimmed group-hover:text-muted sm:hidden" />
             </div>
           </UiElement>
         </div>
@@ -451,13 +449,39 @@ function getCategoryColor(id: string) {
             />
           </div>
 
-          <div class="flex justify-end gap-2 pt-2">
-            <UButton variant="ghost" color="neutral" @click="isModalOpen = false">
-              {{ t('base.cancel') }}
-            </UButton>
-            <UButton type="submit" color="primary" :disabled="!ruleName.trim() || !ruleAmount || ruleAmount <= 0">
-              {{ t('base.save') }}
-            </UButton>
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-default/60">
+            <div v-if="editingRuleId" class="flex items-center gap-1.5">
+              <UButton
+                variant="ghost"
+                color="error"
+                size="sm"
+                icon="lucide:trash-2"
+                @click="isModalOpen = false; deleteRuleId = editingRuleId"
+              >
+                {{ t('base.delete') }}
+              </UButton>
+
+              <UButton
+                variant="subtle"
+                color="primary"
+                size="sm"
+                icon="lucide:play"
+                :loading="isExecuting === editingRuleId"
+                @click="handleExecute(editingRuleId)"
+              >
+                {{ t('recurring.recordNow') }}
+              </UButton>
+            </div>
+            <div v-else />
+
+            <div class="flex items-center gap-2 ml-auto">
+              <UButton variant="ghost" color="neutral" size="sm" @click="isModalOpen = false">
+                {{ t('base.cancel') }}
+              </UButton>
+              <UButton type="submit" color="primary" size="sm" :disabled="!ruleName.trim() || !ruleAmount || ruleAmount <= 0">
+                {{ t('base.save') }}
+              </UButton>
+            </div>
           </div>
         </form>
       </template>

@@ -81,36 +81,38 @@ function handleSavePerson() {
       </template>
     </UiHeader>
 
-    <div class="pageWrapper">
-      <div class="grid gap-4 px-2 pt-2 pb-16 @3xl/main:max-w-2xl">
+    <div class="pageWrapper mb-4 rounded-xl pt-1 pb-24 lg:pb-8">
+      <div class="grid gap-3.5 px-2 pt-1 @3xl/main:max-w-2xl">
         <!-- Summary Cards -->
-        <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-xl border border-default bg-elevated/40 p-3.5 backdrop-blur flex flex-col justify-between">
-            <div class="text-xs font-medium text-muted">
+        <div class="grid grid-cols-2 gap-2.5 sm:gap-3">
+          <div class="rounded-xl border border-default bg-elevated/40 p-3 sm:p-3.5 backdrop-blur flex flex-col justify-between">
+            <div class="text-2xs sm:text-xs font-medium text-muted">
               {{ t('people.totalLent') }}
             </div>
-            <div class="pt-1.5">
+            <div class="pt-1.5 overflow-hidden">
               <Amount
                 :amount="peopleStore.totalOwedToYou"
                 :currencyCode="currenciesStore.base"
                 colorize="income"
                 isShowPlus
                 variant="xl"
+                class="text-base sm:text-xl"
               />
             </div>
           </div>
 
-          <div class="rounded-xl border border-default bg-elevated/40 p-3.5 backdrop-blur flex flex-col justify-between">
-            <div class="text-xs font-medium text-muted">
+          <div class="rounded-xl border border-default bg-elevated/40 p-3 sm:p-3.5 backdrop-blur flex flex-col justify-between">
+            <div class="text-2xs sm:text-xs font-medium text-muted">
               {{ t('people.totalBorrowed') }}
             </div>
-            <div class="pt-1.5">
+            <div class="pt-1.5 overflow-hidden">
               <Amount
                 :amount="peopleStore.totalYouOwe"
                 :currencyCode="currenciesStore.base"
                 colorize="expense"
                 isShowMinus
                 variant="xl"
+                class="text-base sm:text-xl"
               />
             </div>
           </div>
@@ -155,26 +157,28 @@ function handleSavePerson() {
         </div>
 
         <!-- People List -->
-        <div v-else class="grid gap-1">
+        <div v-else class="grid gap-0.5 rounded-xl border border-default/60 bg-elevated/20 overflow-hidden">
           <UiElement
             v-for="person in filteredPeople"
             :key="person.id"
             :to="`/people/${person.id}`"
-            insideClasses="py-3 px-3.5 min-h-[54px] flex items-center justify-between"
+            :lineWidth="2"
+            insideClasses="py-2.5 px-3 min-h-[52px] flex items-center justify-between"
             class="group"
           >
             <!-- Left Side: Avatar & Name -->
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/15 font-bold text-primary text-sm uppercase">
+            <template #leftIcon>
+              <div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 font-bold text-primary text-xs uppercase">
                 {{ person.name.charAt(0) }}
               </div>
-              <div class="min-w-0 truncate">
-                <div class="font-medium text-highlighted text-sm truncate">
-                  {{ person.name }}
-                </div>
-                <div v-if="person.phone" class="text-2xs text-muted truncate">
-                  {{ person.phone }}
-                </div>
+            </template>
+
+            <div class="grid grow gap-0.5 overflow-hidden pr-2">
+              <div class="font-medium text-highlighted text-sm leading-tight truncate">
+                {{ person.name }}
+              </div>
+              <div v-if="person.phone" class="text-2xs text-muted truncate">
+                {{ person.phone }}
               </div>
             </div>
 
@@ -192,7 +196,7 @@ function handleSavePerson() {
                     variant="sm"
                     align="right"
                   />
-                  <div v-else class="text-xs text-muted">
+                  <div v-else class="text-2xs text-muted">
                     {{ t('people.settled') }}
                   </div>
                 </template>
@@ -202,13 +206,13 @@ function handleSavePerson() {
               <button
                 type="button"
                 :title="t('people.edit')"
-                class="interactive flex size-8 items-center justify-center rounded-md text-muted hover:text-highlighted hover:bg-elevated"
+                class="interactive flex size-8 items-center justify-center rounded-lg text-muted hover:text-highlighted hover:bg-elevated/80"
                 @click="openEditPerson(person, $event)"
               >
-                <Icon name="lucide:pencil" size="15" />
+                <Icon name="lucide:pencil" size="14" />
               </button>
 
-              <Icon name="lucide:chevron-right" size="18" class="text-dimmed" />
+              <Icon name="lucide:chevron-right" size="16" class="text-dimmed group-hover:text-muted" />
             </div>
           </UiElement>
         </div>

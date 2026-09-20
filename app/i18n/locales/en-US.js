@@ -28,10 +28,12 @@ export default {
 
   base: {
     add: 'Create',
+    amount: 'Amount',
     apply: 'Apply',
     cancel: 'Cancel',
     close: 'Close',
     delete: 'Delete',
+    description: 'Description',
     duplicate: 'Duplicate',
     edit: 'Edit',
     loading: 'Loading...',
@@ -52,6 +54,7 @@ export default {
     toggleGrouping: 'Toggle grouping',
     togglePresets: 'Toggle presets',
     toggleView: 'Toggle view',
+    type: 'Type',
     yes: 'Yes',
   },
 
@@ -216,6 +219,7 @@ export default {
 
   demo: {
     exit: 'Exit demo mode',
+    try: 'Try Demo Mode',
     update: 'Update demo data',
     updated: 'Data updated',
   },
@@ -419,6 +423,39 @@ export default {
     title: 'Appearance',
   },
 
+  tabs: {
+    title: 'Daily Tabs & Mess',
+    subtitle: 'Track daily meals, tiffins, milk, and subscriptions',
+    new: 'New Tab',
+    edit: 'Edit Tab',
+    deleteConfirm: 'Delete this tab and its history?',
+    emptyTitle: 'No Daily Tabs yet',
+    emptyDesc: 'Track your monthly college mess, tiffin service, milk, or water cans with 1-tap daily counters.',
+    monthlyEstimate: 'Total Active Monthly Dues',
+    unitPrice: 'Price per Unit',
+    defaultUnits: 'Default Units / Day',
+    slots: 'Meal / Delivery Slots',
+    todayTally: "Today's Log",
+    monthDues: 'Current Month Bill',
+    settleMonth: 'Settle & Pay Month Bill',
+    shareSlip: 'Share WhatsApp Slip',
+    slipCopied: 'WhatsApp summary copied to clipboard!',
+    settled: 'Settled',
+    unsettled: 'Unsettled',
+    attendedDays: 'Days Attended',
+    totalConsumed: 'Total Consumed',
+    skippedUnits: 'Skipped Units',
+    savedAmount: 'Amount Saved',
+    history: 'Attendance Ledger',
+    pastSettlements: 'Payment History',
+    presets: {
+      custom: 'Custom Daily Tab',
+      mess: 'College / Tiffin Mess (Lunch & Dinner)',
+      milk: 'Daily Milk Delivery (Liters)',
+      water: 'Drinking Water (Cans)',
+    },
+  },
+
   transfer: {
     titleMoney: 'Transfers',
   },
@@ -481,6 +518,7 @@ export default {
 
   user: {
     logout: 'Logout',
+    signOut: 'Sign Out / Switch Account',
     title: 'Account',
   },
 

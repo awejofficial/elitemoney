@@ -101,13 +101,7 @@ function formatDate(timestamp: number) {
 
 <template>
   <UiPage v-if="person">
-    <UiHeader>
-      <NuxtLink to="/people" class="flex items-center">
-        <UiActionButton :ariaLabel="$t('base.back')">
-          <Icon name="lucide:chevron-left" size="24" />
-        </UiActionButton>
-      </NuxtLink>
-
+    <UiHeader backTo="/people">
       <UiHeaderTitle>
         {{ person.name }}
       </UiHeaderTitle>
@@ -155,19 +149,19 @@ function formatDate(timestamp: number) {
       </template>
     </UiHeader>
 
-    <div class="pageWrapper">
-      <div class="grid gap-4 px-2 pt-2 pb-16 @3xl/main:max-w-2xl">
+    <div class="pageWrapper mb-4 rounded-xl pt-1 pb-24 lg:pb-8">
+      <div class="grid gap-3.5 px-2 pt-1 @3xl/main:max-w-2xl">
         <!-- Balance Hero Card -->
-        <div class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-default bg-elevated/40 p-6 text-center backdrop-blur">
-          <div class="flex size-14 items-center justify-center rounded-full bg-primary/15 font-bold text-primary text-xl uppercase">
+        <div class="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-default bg-elevated/40 p-4 sm:p-5 text-center backdrop-blur">
+          <div class="flex size-12 items-center justify-center rounded-full bg-primary/15 font-bold text-primary text-lg uppercase">
             {{ person.name.charAt(0) }}
           </div>
 
           <div>
-            <div class="text-xs font-medium text-muted">
+            <div class="text-2xs font-medium text-muted">
               {{ t('people.netBalance') }}
             </div>
-            <div v-if="personBalance" class="pt-1.5 flex justify-center">
+            <div v-if="personBalance" class="pt-1 flex justify-center">
               <Amount
                 :amount="personBalance.netBalance"
                 :currencyCode="currenciesStore.base"
@@ -178,7 +172,7 @@ function formatDate(timestamp: number) {
                 align="center"
               />
             </div>
-            <div v-if="personBalance" class="text-xs pt-1">
+            <div v-if="personBalance" class="text-2xs pt-0.5">
               <span v-if="personBalance.netBalance > 0" class="text-income font-medium">
                 {{ person.name }} {{ t('people.theyOweYou') }}
               </span>
@@ -192,12 +186,13 @@ function formatDate(timestamp: number) {
           </div>
 
           <!-- Quick Action Buttons -->
-          <div class="flex flex-wrap items-center justify-center gap-2 pt-3">
+          <div class="grid grid-cols-2 gap-2 w-full max-w-xs pt-2">
             <UButton
               icon="lucide:arrow-up-right"
               size="sm"
               color="primary"
               variant="solid"
+              class="justify-center rounded-xl"
               @click="openAddEntry('lent')"
             >
               {{ t('people.lendMoney') }}
@@ -208,20 +203,10 @@ function formatDate(timestamp: number) {
               size="sm"
               color="neutral"
               variant="outline"
+              class="justify-center rounded-xl"
               @click="openAddEntry('borrowed')"
             >
               {{ t('people.borrowMoney') }}
-            </UButton>
-
-            <UButton
-              v-if="personBalance && personBalance.openEntriesCount > 0"
-              icon="lucide:check-check"
-              size="sm"
-              color="success"
-              variant="subtle"
-              @click="isShowSettleConfirm = true"
-            >
-              {{ t('people.settleAll') }}
             </UButton>
           </div>
         </div>
@@ -244,45 +229,48 @@ function formatDate(timestamp: number) {
             {{ t('people.desc') }}
           </div>
 
-          <div v-else class="grid gap-1">
+          <div v-else class="grid gap-0.5 rounded-xl border border-default/60 bg-elevated/20 overflow-hidden">
             <UiElement
               v-for="entry in entries"
               :key="entry.id"
-              insideClasses="p-3 min-h-[48px] flex items-center justify-between"
+              :lineWidth="2"
+              insideClasses="py-2.5 px-3 min-h-[50px] flex items-center justify-between"
               :class="{ 'opacity-60': entry.status === 'paid' }"
               class="group"
             >
               <!-- Left side: Type Icon & Description -->
-              <div class="flex items-center gap-3 min-w-0">
+              <template #leftIcon>
                 <div
                   class="flex size-8 shrink-0 items-center justify-center rounded-lg text-xs"
                   :class="entry.type === 'lent' ? 'bg-income/15 text-income' : 'bg-expense/15 text-expense'"
                 >
                   <Icon :name="entry.type === 'lent' ? 'lucide:arrow-up-right' : 'lucide:arrow-down-left'" size="16" />
                 </div>
-                <div class="min-w-0 truncate">
-                  <div class="font-medium text-highlighted text-xs flex items-center gap-1.5 truncate">
-                    <span class="truncate">{{ entry.desc || (entry.type === 'lent' ? t('people.lendMoney') : t('people.borrowMoney')) }}</span>
-                    <UBadge
-                      v-if="entry.status === 'paid'"
-                      size="xs"
-                      color="neutral"
-                      variant="subtle"
-                    >
-                      {{ t('people.settled') }}
-                    </UBadge>
-                  </div>
-                  <div class="text-3xs text-dimmed flex items-center gap-2 pt-0.5">
-                    <span>{{ formatDate(entry.date) }}</span>
-                    <span v-if="entry.dueDate" class="text-amber-500">
-                      Due: {{ formatDate(entry.dueDate) }}
-                    </span>
-                  </div>
+              </template>
+
+              <div class="grid grow gap-0.5 overflow-hidden pr-2">
+                <div class="font-medium text-highlighted text-xs flex items-center gap-1.5 truncate">
+                  <span class="truncate">{{ entry.desc || (entry.type === 'lent' ? t('people.lendMoney') : t('people.borrowMoney')) }}</span>
+                  <UBadge
+                    v-if="entry.status === 'paid'"
+                    size="xs"
+                    color="neutral"
+                    variant="subtle"
+                    class="text-3xs"
+                  >
+                    {{ t('people.settled') }}
+                  </UBadge>
+                </div>
+                <div class="text-3xs text-dimmed flex items-center gap-1.5 pt-0.5 whitespace-nowrap overflow-hidden">
+                  <span>{{ formatDate(entry.date) }}</span>
+                  <span v-if="entry.dueDate" class="text-amber-500 font-medium truncate">
+                    • Due: {{ formatDate(entry.dueDate) }}
+                  </span>
                 </div>
               </div>
 
               <!-- Right side: Amount & Quick Actions -->
-              <div class="flex items-center gap-2 shrink-0">
+              <div class="flex items-center gap-1.5 shrink-0">
                 <Amount
                   :amount="entry.amount"
                   :currencyCode="entry.currency"
@@ -297,7 +285,7 @@ function formatDate(timestamp: number) {
                 <button
                   type="button"
                   :title="entry.status === 'open' ? t('people.markSettled') : t('people.markPending')"
-                  class="interactive flex size-7 items-center justify-center rounded-md"
+                  class="interactive flex size-8 items-center justify-center rounded-lg hover:bg-elevated/80"
                   :class="entry.status === 'open' ? 'text-muted hover:text-highlighted' : 'text-income'"
                   @click="peopleStore.toggleEntryStatus(entry.id)"
                 >
@@ -308,7 +296,7 @@ function formatDate(timestamp: number) {
                 <button
                   type="button"
                   :title="$t('base.delete')"
-                  class="interactive flex size-7 items-center justify-center rounded-md text-muted hover:text-error"
+                  class="interactive flex size-8 items-center justify-center rounded-lg text-muted hover:text-error hover:bg-elevated/80"
                   @click="peopleStore.deleteEntry(entry.id)"
                 >
                   <Icon name="lucide:trash-2" size="14" />
