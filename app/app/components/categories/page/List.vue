@@ -24,6 +24,8 @@ const categoriesView = useStorage<'list' | 'grid'>('finapp.categoriesView', 'lis
   mergeDefaults: true,
 })
 
+const isPresetsModalOpen = ref(false)
+const selectedPackForModal = ref('essentials')
 const deleteCategoryId = ref<CategoryId | null>(null)
 
 const deleteTrnsCount = computed(() => {
@@ -105,6 +107,13 @@ function getCategoryContextMenuItems(categoryId: CategoryId) {
           />
         </UiActionButton>
 
+        <UiActionButton
+          :ariaLabel="t('categories.presets.modalTitle')"
+          @click="selectedPackForModal = 'essentials'; isPresetsModalOpen = true"
+        >
+          <Icon name="lucide:sparkles" size="20" />
+        </UiActionButton>
+
         <NuxtLink to="/categories/new">
           <UiActionButton :ariaLabel="$t('categories.new')">
             <Icon name="lucide:plus" size="24" />
@@ -113,19 +122,106 @@ function getCategoryContextMenuItems(categoryId: CategoryId) {
       </template>
     </UiHeader>
 
-    <!-- Empty -->
+    <!-- Empty State: Guided Starter Packs -->
     <div
       v-if="categoriesStore.categoriesRootIds.length === 0"
-      class="flex-center grow flex-col"
+      class="flex-center grow flex-col px-4 py-8 max-w-xl mx-auto text-center"
     >
-      <UiTitleSection class="pb-4">
-        {{ t('categories.new') }}
+      <div class="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3 shadow-inner">
+        <Icon name="lucide:sparkles" size="26" />
+      </div>
+
+      <UiTitleSection class="pb-1">
+        {{ t('categories.presets.emptyTitle') }}
       </UiTitleSection>
-      <NuxtLink to="/categories/new">
-        <UiButtonAccent rounded>
+      <p class="text-xs text-muted max-w-md pb-5 leading-relaxed">
+        {{ t('categories.presets.emptySubtitle') }}
+      </p>
+
+      <!-- Quick starter pack cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full pb-5 text-left">
+        <div
+          class="rounded-xl border border-primary/30 bg-primary/5 p-3 flex flex-col justify-between"
+        >
+          <div>
+            <div class="flex items-center gap-1.5 pb-1 text-primary">
+              <Icon name="mdi:view-dashboard-outline" size="16" />
+              <span class="text-xs font-semibold">{{ t('categories.presets.essentials.name') }}</span>
+            </div>
+            <div class="text-3xs text-muted leading-snug">
+              {{ t('categories.presets.essentials.desc') }}
+            </div>
+          </div>
+          <div class="pt-3">
+            <UButton
+              color="primary"
+              size="xs"
+              block
+              @click="selectedPackForModal = 'essentials'; isPresetsModalOpen = true"
+            >
+              {{ t('categories.presets.previewAndAdd') }}
+            </UButton>
+          </div>
+        </div>
+
+        <div
+          class="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 flex flex-col justify-between"
+        >
+          <div>
+            <div class="flex items-center gap-1.5 pb-1 text-amber-500">
+              <Icon name="mdi:school" size="16" />
+              <span class="text-xs font-semibold">{{ t('categories.presets.student.name') }}</span>
+            </div>
+            <div class="text-3xs text-muted leading-snug">
+              {{ t('categories.presets.student.desc') }}
+            </div>
+          </div>
+          <div class="pt-3">
+            <UButton
+              color="neutral"
+              variant="subtle"
+              size="xs"
+              block
+              @click="selectedPackForModal = 'student'; isPresetsModalOpen = true"
+            >
+              {{ t('categories.presets.previewAndAdd') }}
+            </UButton>
+          </div>
+        </div>
+
+        <div
+          class="rounded-xl border border-purple-500/30 bg-purple-500/5 p-3 flex flex-col justify-between"
+        >
+          <div>
+            <div class="flex items-center gap-1.5 pb-1 text-purple-500">
+              <Icon name="mdi:laptop" size="16" />
+              <span class="text-xs font-semibold">{{ t('categories.presets.freelance.name') }}</span>
+            </div>
+            <div class="text-3xs text-muted leading-snug">
+              {{ t('categories.presets.freelance.desc') }}
+            </div>
+          </div>
+          <div class="pt-3">
+            <UButton
+              color="neutral"
+              variant="subtle"
+              size="xs"
+              block
+              @click="selectedPackForModal = 'freelance'; isPresetsModalOpen = true"
+            >
+              {{ t('categories.presets.previewAndAdd') }}
+            </UButton>
+          </div>
+        </div>
+      </div>
+
+      <!-- Or blank custom category -->
+      <div class="flex items-center gap-2 pt-1">
+        <span class="text-2xs text-muted">{{ t('categories.presets.orCreateCustom') }}</span>
+        <NuxtLink to="/categories/new" class="text-2xs text-primary hover:underline font-medium">
           {{ t('categories.new') }}
-        </UiButtonAccent>
-      </NuxtLink>
+        </NuxtLink>
+      </div>
     </div>
 
     <!-- List -->
@@ -153,6 +249,11 @@ function getCategoryContextMenuItems(categoryId: CategoryId) {
       :highlight="deleteHighlight"
       @closed="deleteCategoryId = null"
       @confirm="onDeleteConfirm"
+    />
+
+    <CategoriesPresetsModal
+      v-model:open="isPresetsModalOpen"
+      :initialPackId="selectedPackForModal"
     />
   </UiPage>
 </template>

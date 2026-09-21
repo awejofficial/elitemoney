@@ -33,3 +33,20 @@ export type AddCategoryParams = {
   nextChildIds?: CategoryId[]
   values: CategoryItem
 }
+
+export type BatchCategoryChildInput = {
+  color?: string
+  icon: string
+  name: string
+  showInLastUsed?: boolean
+  showInQuickSelector?: boolean
+}
+
+export type BatchCategoryInput = {
+  children?: BatchCategoryChildInput[]
+  color: string
+  icon: string
+  name: string
+  showInLastUsed?: boolean
+  showInQuickSelector?: boolean
+}

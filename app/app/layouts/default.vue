@@ -58,7 +58,7 @@ onMounted(() => {
   })
 })
 
-const showShell = computed(() => bootState.value === 'ready')
+const showShell = computed(() => bootState.value !== 'error')
 const layoutClasses = computed(() => cn(
   'flex min-h-dvh flex-col transition-all duration-300 ease-in-out',
   showShell.value && (isShowSidebar.value ? 'md:pl-72' : 'md:pl-12'),
@@ -129,33 +129,29 @@ defineShortcuts({
     </div>
 
     <template v-else>
-      <template v-if="showShell">
-        <LayoutSidebar
-          :isShowSidebar
-          @toggleSidebar="isShowSidebar = !isShowSidebar"
-        />
-      </template>
+      <LayoutSidebar
+        :isShowSidebar
+        @toggleSidebar="isShowSidebar = !isShowSidebar"
+      />
 
-      <div :class="showShell ? 'flex min-h-dvh flex-col md:py-4 md:pr-4' : 'flex flex-1 items-center justify-center'">
-        <div :class="showShell ? 'bg-default md:border-accented relative z-10 flex max-w-5xl flex-1 flex-col contain-paint md:rounded-md md:border lg:rounded-2xl' : 'w-full max-w-lg px-4'">
+      <div class="flex min-h-dvh flex-col md:py-4 md:pr-4">
+        <div class="bg-default md:border-accented relative z-10 flex max-w-5xl flex-1 flex-col contain-paint md:rounded-md md:border lg:rounded-2xl">
           <main
             id="pageScroll"
-            :style="showShell ? 'padding-bottom: calc(64px + env(safe-area-inset-bottom))' : ''"
             class="@container/main flex-1 contain-paint md:!pb-0"
+            style="padding-bottom: calc(64px + env(safe-area-inset-bottom))"
           >
             <slot :keepalive="{ include: keepalive }" />
           </main>
         </div>
       </div>
 
-      <SearchModal v-if="showShell" />
+      <SearchModal />
 
-      <template v-if="showShell">
-        <TrnFormFloatOpener v-if="width >= 767" />
+      <TrnFormFloatOpener v-if="width >= 767" />
 
-        <LayoutMenuBottom />
-        <LayoutMenuBottomModal v-if="isMenuOpen" @close="isMenuOpen = false" />
-      </template>
+      <LayoutMenuBottom />
+      <LayoutMenuBottomModal v-if="isMenuOpen" @close="isMenuOpen = false" />
     </template>
 
     <Teleport

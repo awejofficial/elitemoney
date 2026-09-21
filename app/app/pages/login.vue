@@ -3,7 +3,7 @@ import { useDemo } from '~/components/demo/useDemo'
 import { showErrorToast } from '~/composables/useStoreSync'
 import { useSupabaseAuth } from '~/composables/useSupabase'
 
-const { session, signInWithGoogle } = useSupabaseAuth()
+const { session, signInWithGoogle, signInWithPassword, signUpWithPassword } = useSupabaseAuth()
 const logger = createLogger('login')
 
 definePageMeta({
@@ -22,6 +22,54 @@ const route = useRoute()
 const router = useRouter()
 
 const isLoading = ref(false)
+
+// Email/Password state
+const authMode = ref<'signin' | 'signup'>('signin')
+const email = ref('')
+const password = ref('')
+const showPassword = ref(false)
+const isEmailSubmitting = ref(false)
+const emailAuthError = ref<string | null>(null)
+const emailAuthSuccess = ref<string | null>(null)
+
+async function onEmailAuth() {
+  if (!email.value.trim() || !password.value)
+    return
+
+  emailAuthError.value = null
+  emailAuthSuccess.value = null
+  isEmailSubmitting.value = true
+  isDemo.value = null
+
+  try {
+    if (authMode.value === 'signin') {
+      const { data, error } = await signInWithPassword(email.value.trim(), password.value)
+      if (error)
+        throw error
+      if (data?.session) {
+        router.replace(getSafeRedirectPath(route.query.redirect))
+      }
+    }
+    else {
+      const { data, error } = await signUpWithPassword(email.value.trim(), password.value)
+      if (error)
+        throw error
+      if (data?.session) {
+        router.replace(getSafeRedirectPath(route.query.redirect))
+      }
+      else {
+        emailAuthSuccess.value = t('login.signUpSuccess')
+      }
+    }
+  }
+  catch (e: any) {
+    logger.error('email auth error:', e)
+    emailAuthError.value = e?.message || t('login.error')
+  }
+  finally {
+    isEmailSubmitting.value = false
+  }
+}
 
 // Set right before redirecting to Google, read on return: marks this load as the OAuth callback.
 const OAUTH_PENDING_KEY = 'finapp.oauthPending'
@@ -120,7 +168,7 @@ watch(
 
 <template>
   <div
-    class="mx-auto grid size-full h-dvh max-w-xl grid-rows-[auto_1fr_auto] px-2 py-3"
+    class="mx-auto grid size-full min-h-dvh max-w-xl grid-rows-[auto_1fr_auto] px-2 py-3"
   >
     <div class="flex items-center justify-end">
       <div class="w-fit max-md:fixed max-md:top-5 max-md:right-5 max-md:z-30">
@@ -133,14 +181,15 @@ watch(
     >
       <div class="flex flex-col items-center justify-center">
         <UiLogo size="lg" />
-        <div class="text-muted pt-1 text-sm">
+        <div class="text-muted pt-1 text-sm text-center">
           {{ t("login.description") }}
         </div>
 
-        <div class="grid min-w-[320px] items-center gap-3 pt-22">
+        <div class="grid w-full max-w-sm items-center gap-3 pt-8 pb-4">
+          <!-- Google Auth Button -->
           <button
             class="shiny-pro"
-            :disabled="isLoading"
+            :disabled="isLoading || isEmailSubmitting"
             type="button"
             @click="onGoogle"
           >
@@ -155,16 +204,117 @@ watch(
           </button>
 
           <USeparator
-            :label="t('login.or')"
-            :ui="{ label: 'text-muted' }"
-            class="p-3"
+            :label="t('login.orEmail')"
+            :ui="{ label: 'text-muted text-xs' }"
+            class="py-1"
+          />
+
+          <!-- Email / Password Card Form -->
+          <div class="rounded-2xl border border-default bg-elevated/40 p-4 backdrop-blur shadow-sm">
+            <!-- Tabs: Sign In / Register -->
+            <div class="grid grid-cols-2 gap-1 rounded-xl bg-elevated/60 p-1 mb-3">
+              <button
+                type="button"
+                class="rounded-lg py-1.5 text-xs font-medium transition-all"
+                :class="authMode === 'signin' ? 'bg-primary text-white shadow-sm font-semibold' : 'text-muted hover:text-highlighted'"
+                @click="authMode = 'signin'; emailAuthError = null; emailAuthSuccess = null"
+              >
+                {{ t('login.authTabSignIn') }}
+              </button>
+              <button
+                type="button"
+                class="rounded-lg py-1.5 text-xs font-medium transition-all"
+                :class="authMode === 'signup' ? 'bg-primary text-white shadow-sm font-semibold' : 'text-muted hover:text-highlighted'"
+                @click="authMode = 'signup'; emailAuthError = null; emailAuthSuccess = null"
+              >
+                {{ t('login.authTabSignUp') }}
+              </button>
+            </div>
+
+            <!-- Error Banner -->
+            <div
+              v-if="emailAuthError"
+              class="mb-3 rounded-lg border border-error/30 bg-error/10 p-2.5 text-xs text-error flex items-start gap-2"
+            >
+              <UIcon name="i-lucide-alert-circle" class="size-4 shrink-0 mt-0.5" />
+              <span class="break-words">{{ emailAuthError }}</span>
+            </div>
+
+            <!-- Success Banner -->
+            <div
+              v-if="emailAuthSuccess"
+              class="mb-3 rounded-lg border border-success/30 bg-success/10 p-2.5 text-xs text-success flex items-start gap-2"
+            >
+              <UIcon name="i-lucide-check-circle-2" class="size-4 shrink-0 mt-0.5" />
+              <span>{{ emailAuthSuccess }}</span>
+            </div>
+
+            <form class="grid gap-3" @submit.prevent="onEmailAuth">
+              <div>
+                <label class="block text-2xs font-medium text-muted pb-1">
+                  {{ t('login.email') }}
+                </label>
+                <UInput
+                  v-model="email"
+                  type="email"
+                  autocomplete="email"
+                  icon="i-lucide-mail"
+                  placeholder="name@example.com"
+                  size="md"
+                  required
+                />
+              </div>
+
+              <div>
+                <label class="block text-2xs font-medium text-muted pb-1">
+                  {{ t('login.password') }}
+                </label>
+                <div class="relative">
+                  <UInput
+                    v-model="password"
+                    :type="showPassword ? 'text' : 'password'"
+                    autocomplete="current-password"
+                    icon="i-lucide-lock"
+                    placeholder="••••••••"
+                    size="md"
+                    minlength="6"
+                    required
+                  />
+                  <button
+                    type="button"
+                    class="absolute inset-y-0 right-0 flex items-center pr-3 text-muted hover:text-highlighted"
+                    @click="showPassword = !showPassword"
+                  >
+                    <UIcon :name="showPassword ? 'i-lucide-eye-off' : 'i-lucide-eye'" class="size-4" />
+                  </button>
+                </div>
+              </div>
+
+              <UButton
+                type="submit"
+                color="primary"
+                size="md"
+                class="justify-center mt-1 font-medium rounded-xl"
+                :loading="isEmailSubmitting"
+                :disabled="isLoading || !email.trim() || !password"
+              >
+                {{ authMode === 'signin' ? t('login.signInWithEmail') : t('login.signUpWithEmail') }}
+              </UButton>
+            </form>
+          </div>
+
+          <USeparator
+            :label="t('login.orDemo')"
+            :ui="{ label: 'text-muted text-xs' }"
+            class="py-1"
           />
 
           <UiButtonAccent
             rounded
-            size="xl"
+            size="lg"
             type="button"
             variant="ghost"
+            class="justify-center"
             @click="openDemo"
           >
             {{ t("login.openDemo") }}

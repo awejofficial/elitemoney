@@ -49,7 +49,7 @@ export function useInitApp() {
     || (walletsStore.isLoaded && categoriesStore.isLoaded && trnsStore.isLoaded))
 
   const isOnboarded = computed(() =>
-    walletsStore.hasItems && categoriesStore.hasItems && trnsStore.hasItems)
+    walletsStore.hasItems || categoriesStore.hasItems || trnsStore.hasItems)
 
   // Persisted hint so a returning user gets the app shell on the first frame, before hydration.
   hintRef ??= useCookie('finapp.isOnboarded', { default: () => false })

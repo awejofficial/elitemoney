@@ -62,6 +62,10 @@ export function useSupabaseAuth() {
     // be allow-listed in Supabase auth config (config.toml additional_redirect_urls / dashboard).
     signInWithGoogle: (redirectTo: string) =>
       client.auth.signInWithOAuth({ options: { redirectTo }, provider: 'google' }),
+    signInWithPassword: (email: string, password: string) =>
+      client.auth.signInWithPassword({ email, password }),
+    signUpWithPassword: (email: string, password: string) =>
+      client.auth.signUp({ email, password }),
     signOut: () => client.auth.signOut(),
     uid: computed<string | null>(() => session.value?.user?.id ?? null),
     user: computed(() => session.value?.user ?? null),
