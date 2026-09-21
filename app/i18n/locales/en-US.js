@@ -235,6 +235,8 @@ export default {
   currencies: {
     ariaFilter: 'Filter currencies',
     base: 'Base currency',
+    baseDescription: 'Main currency used for totals and conversions',
+    manageRates: 'View and manage live exchange rates',
     list: {
       all: 'All',
       notFound: 'Currency not found...',
@@ -329,17 +331,6 @@ export default {
     openDemo: 'Open Demo',
     or: 'or',
     signInWithGoogle: 'Sign in with Google',
-    signInWithEmail: 'Sign in with Email',
-    signUpWithEmail: 'Create Account',
-    email: 'Email address',
-    password: 'Password',
-    authTabSignIn: 'Sign In',
-    authTabSignUp: 'Register',
-    noAccount: "Don't have an account? Register",
-    haveAccount: 'Already have an account? Sign In',
-    signUpSuccess: 'Account created! Please check your email to confirm or sign in.',
-    orEmail: 'or continue with email',
-    orDemo: 'or try demo without account',
     title: 'Login',
   },
 
@@ -394,11 +385,13 @@ export default {
   settings: {
     caution: 'With caution',
     deleteButton: 'Delete my data',
+    enableCurrencies: 'Enable Currencies',
     errors: {
       saveFailed: 'Failed to save settings',
     },
     menuLabels: 'Show labels in bottom menu',
     mobileMenu: 'Interface',
+    showCurrencies: 'Currencies & Rates Tab',
     title: 'Settings',
   },
 

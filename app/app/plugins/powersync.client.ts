@@ -62,11 +62,11 @@ export default defineNuxtPlugin(() => {
     }
   })
 
-  // Drive the PowerSync connection from the auth session.
+  // Drive the PowerSync connection from the auth session and demo state.
   watch(
-    uid,
-    (userId) => {
-      if (isDemo.value)
+    [uid, isDemo] as const,
+    ([userId, demo]) => {
+      if (demo)
         return
 
       if (userId) {

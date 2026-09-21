@@ -228,6 +228,8 @@ export default {
   currencies: {
     ariaFilter: 'Фильтр валют',
     base: 'Основная валюта',
+    baseDescription: 'Основная валюта для итогов и расчетов',
+    manageRates: 'Таблица курсов валют',
     list: {
       all: 'Все',
       notFound: 'Валюта не найдена...',
@@ -376,11 +378,13 @@ export default {
   settings: {
     caution: 'C осторожностью',
     deleteButton: 'Удалить все мои данные',
+    enableCurrencies: 'Включить валюты',
     errors: {
       saveFailed: 'Не удалось сохранить настройки',
     },
     menuLabels: 'Подписи в нижнем меню',
     mobileMenu: 'Интерфейс',
+    showCurrencies: 'Вкладка валют и курсов',
     title: 'Настройки',
   },
 

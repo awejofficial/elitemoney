@@ -19,6 +19,7 @@ const { generateDemoData } = useDemo()
 const { isDemo } = useDemo()
 const isShowBaseCurrencyModal = ref(false)
 const isShowMenuLabels = useStorage('finapp.isShowMenuLabels', true)
+const isShowCurrencies = useStorage('finapp.isShowCurrencies', false)
 
 const isPinActive = ref(false)
 const isBiometricActive = ref(false)
@@ -166,16 +167,44 @@ function onGenerateDemoData() {
         </UiSettingsCard>
 
         <!-- Currency -->
-        <UiSettingsCard :title="t('currencies.base')">
-          <button
-            class="text-highlighted bg-elevated/30 ring-accented hover:!bg-elevated/50 focus-visible:ring-primary group relative inline-flex min-h-[42px] min-w-[160px] items-center gap-2 rounded-md px-4 py-2 pe-10 text-sm ring transition-colors ring-inset focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
-            @click="isShowBaseCurrencyModal = true"
-          >
-            <span class="truncate">{{ currenciesStore.base }}</span>
-            <span class="absolute inset-y-0 end-0 flex items-center pe-3">
-              <UIcon name="i-lucide-chevrons-up-down" class="text-dimmed size-5 shrink-0" />
-            </span>
-          </button>
+        <UiSettingsCard :title="t('currencies.page.title', 'Currencies')">
+          <UiSwitchItem
+            :checkboxValue="isShowCurrencies"
+            :title="t('settings.enableCurrencies', 'Enable Currencies')"
+            @click="isShowCurrencies = !isShowCurrencies"
+          />
+
+          <div v-if="isShowCurrencies" class="mt-4 pt-4 border-t border-default/10 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium">{{ t('currencies.base') }}</p>
+                <p class="text-xs text-muted">{{ t('currencies.baseDescription', 'Main currency used for totals and conversions') }}</p>
+              </div>
+              <button
+                class="text-highlighted bg-elevated/30 ring-accented hover:!bg-elevated/50 focus-visible:ring-primary group relative inline-flex min-h-[38px] min-w-[130px] items-center justify-between gap-2 rounded-md px-3 py-1.5 text-sm ring transition-colors ring-inset focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+                @click="isShowBaseCurrencyModal = true"
+              >
+                <span class="truncate font-semibold">{{ currenciesStore.base }}</span>
+                <UIcon name="i-lucide-chevrons-up-down" class="text-dimmed size-4 shrink-0" />
+              </button>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <div>
+                <p class="text-sm font-medium">{{ t('currencies.page.title') }}</p>
+                <p class="text-xs text-muted">{{ t('currencies.manageRates', 'View exchange rates table') }}</p>
+              </div>
+              <UButton
+                to="/currencies"
+                variant="soft"
+                color="neutral"
+                size="sm"
+                icon="hugeicons:money-exchange-01"
+              >
+                {{ t('base.open') }}
+              </UButton>
+            </div>
+          </div>
         </UiSettingsCard>
 
         <!-- Security & App Lock -->

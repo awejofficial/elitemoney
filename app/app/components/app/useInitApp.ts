@@ -176,13 +176,12 @@ export function useInitApp() {
     // is a no-op once a store is loaded, so a late prime would be dropped.
     await primeStoresFromCache()
 
-    // If local SQLite still holds another user's rows, wipe + reconnect before reading so we never
-    // surface the previous user's data. Same-user path stays instant (no wait).
+    // Connect to PowerSync if an authenticated user is present. connectPowerSync handles
+    // cross-user wipe if the local DB belonged to a different user, and is idempotent.
     const currentUid = userStore.uid ?? getPersistedUid()
-    const owner = getLocalDbOwner()
-    if (currentUid && owner && owner !== currentUid) {
+    if (currentUid) {
       const config = useRuntimeConfig()
-      await connectPowerSync(useSupabase(), config.public.powersyncUrl as string, currentUid)
+      await connectPowerSync(useSupabase(), config.public.powersyncUrl as string, currentUid).catch(e => logger.error('connectPowerSync failed in startLocalData', e))
     }
 
     startWatches()
