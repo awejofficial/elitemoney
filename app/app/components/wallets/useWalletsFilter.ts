@@ -26,11 +26,19 @@ export function useWalletsFilter(groupedBy: Ref<WalletsGroupedBy>, showArchived:
     filterWalletsByViewType(selectedWalletsIdsWithCurrency.value, walletsStore.itemsComputed, walletViewType.value, showArchived.value),
   )
 
+  // Safety net: if a stale localStorage filter hides everything, reset to 'total'
   watch(selectedWalletsIds, (ids) => {
     if (ids.length === 0 && walletViewType.value !== 'total') {
       const totalIds = filterWalletsByViewType(selectedWalletsIdsWithCurrency.value, walletsStore.itemsComputed, 'total', showArchived.value)
       if (totalIds.length > 0)
         walletViewType.value = 'total'
+    }
+  }, { immediate: true })
+
+  // Also reset on store hydration: wallets may arrive after the initial filter ran
+  watch(() => walletsStore.hasItems, (has) => {
+    if (has && selectedWalletsIds.value.length === 0 && walletViewType.value !== 'total') {
+      walletViewType.value = 'total'
     }
   })
 

@@ -17,12 +17,7 @@ useSeoMeta({
   ogTitle: computed(() => `${t('tabs.title')} — EliteMoney`),
 })
 
-// Auto-seed sample Mess tab if the store is empty
-onMounted(() => {
-  const firstWallet = Object.keys(walletsStore.items ?? {})[0]
-  const firstCat = Object.keys(categoriesStore.items ?? {})[0]
-  tabsStore.seedSampleTab(firstWallet, firstCat, currenciesStore.base || 'INR')
-})
+// No auto-seeding — tabs are user-created only
 
 const todayKey = computed(() => tabsStore.getTodayKey())
 const currentYearMonth = computed(() => todayKey.value.slice(0, 7))
@@ -44,42 +39,62 @@ const tabUnitLabel = ref('tiffin')
 const tabCurrency = ref(currenciesStore.base || 'INR')
 const tabDefaultUnits = ref(2)
 const isHasSlots = ref(true)
+const slotLabels = ref<{ id: string; label: string }[]>([
+  { id: 'slot_1', label: '' },
+  { id: 'slot_2', label: '' },
+])
 
 function applyPreset(type: 'mess' | 'milk' | 'water' | 'custom') {
   presetChoice.value = type
   if (type === 'mess') {
-    tabName.value = 'College Mess (Tiffin)'
+    tabName.value = t('tabs.presetMess')
     tabUnitPrice.value = 70
-    tabUnitLabel.value = 'tiffin'
+    tabUnitLabel.value = t('tabs.unitTiffin')
     tabDefaultUnits.value = 2
     isHasSlots.value = true
+    slotLabels.value = [
+      { id: 'lunch', label: t('tabs.slotLunch') },
+      { id: 'dinner', label: t('tabs.slotDinner') },
+    ]
   }
   else if (type === 'milk') {
-    tabName.value = 'Daily Milk Delivery'
+    tabName.value = t('tabs.presetMilk')
     tabUnitPrice.value = 65
-    tabUnitLabel.value = 'liter'
+    tabUnitLabel.value = t('tabs.unitLiter')
     tabDefaultUnits.value = 1
     isHasSlots.value = false
+    slotLabels.value = []
   }
   else if (type === 'water') {
-    tabName.value = 'Drinking Water Cans'
+    tabName.value = t('tabs.presetWater')
     tabUnitPrice.value = 30
-    tabUnitLabel.value = 'can'
+    tabUnitLabel.value = t('tabs.unitCan')
     tabDefaultUnits.value = 1
     isHasSlots.value = false
+    slotLabels.value = []
   }
   else {
     tabName.value = ''
     tabUnitPrice.value = 50
-    tabUnitLabel.value = 'unit'
+    tabUnitLabel.value = t('tabs.unitGeneric')
     tabDefaultUnits.value = 1
     isHasSlots.value = false
+    slotLabels.value = []
   }
 }
+
+const popularCurrencies = computed(() => {
+  const base = currenciesStore.base || 'INR'
+  const list = ['INR', 'USD', 'EUR', 'GBP', 'AED', 'CAD', 'AUD', 'SGD', 'JPY', 'CNY', 'RUB']
+  if (!list.includes(base))
+    return [base, ...list]
+  return [base, ...list.filter(c => c !== base)]
+})
 
 function openAddModal() {
   editingTabId.value = null
   applyPreset('mess')
+  tabCurrency.value = currenciesStore.base || 'INR'
   isModalOpen.value = true
 }
 
@@ -94,6 +109,9 @@ function openEditModal(tab: DailyTabItem, e?: Event) {
   tabCurrency.value = tab.currency
   tabDefaultUnits.value = tab.defaultUnitsPerDay
   isHasSlots.value = (tab.slots && tab.slots.length > 0)
+  slotLabels.value = tab.slots?.length
+    ? tab.slots.map(s => ({ id: s.id, label: s.label }))
+    : []
   isModalOpen.value = true
 }
 
@@ -101,11 +119,10 @@ function handleSaveTab() {
   if (!tabName.value.trim() || !tabUnitPrice.value || tabUnitPrice.value <= 0)
     return
 
-  const slots = isHasSlots.value
-    ? [
-        { id: 'lunch', label: 'Lunch', defaultCount: 1 },
-        { id: 'dinner', label: 'Dinner', defaultCount: 1 },
-      ]
+  const slots = isHasSlots.value && slotLabels.value.length > 0
+    ? slotLabels.value
+        .filter(s => s.label.trim())
+        .map(s => ({ id: s.id || `slot_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, label: s.label.trim(), defaultCount: 1 }))
     : []
 
   const firstWallet = Object.keys(walletsStore.items ?? {})[0]
@@ -174,10 +191,10 @@ function handleSaveTab() {
                 variant="xl"
                 class="text-base sm:text-xl"
               />
-              <span class="text-2xs text-muted font-normal">/ this month</span>
+              <span class="text-2xs text-muted font-normal">/ {{ t('tabs.thisMonth') }}</span>
             </div>
             <div class="text-3xs text-dimmed pt-0.5">
-              {{ tabsStore.tabsList.length }} active daily subscriptions
+              {{ tabsStore.tabsList.length }} {{ t('tabs.activeSubs') }}
             </div>
           </div>
 
@@ -338,7 +355,7 @@ function handleSaveTab() {
           <!-- Preset Selector -->
           <div v-if="!editingTabId">
             <label class="block text-xs font-medium text-muted pb-1.5">
-              Choose Preset
+              {{ t('tabs.choosePreset') }}
             </label>
             <div class="grid grid-cols-2 gap-2">
               <button
@@ -348,7 +365,7 @@ function handleSaveTab() {
                 @click="applyPreset('mess')"
               >
                 <Icon name="lucide:utensils" size="16" />
-                <span>Mess / Tiffin</span>
+                <span>{{ t('tabs.presetMessLabel') }}</span>
               </button>
 
               <button
@@ -358,7 +375,7 @@ function handleSaveTab() {
                 @click="applyPreset('milk')"
               >
                 <Icon name="lucide:milk" size="16" />
-                <span>Daily Milk</span>
+                <span>{{ t('tabs.presetMilkLabel') }}</span>
               </button>
 
               <button
@@ -368,7 +385,7 @@ function handleSaveTab() {
                 @click="applyPreset('water')"
               >
                 <Icon name="lucide:droplets" size="16" />
-                <span>Water Cans</span>
+                <span>{{ t('tabs.presetWaterLabel') }}</span>
               </button>
 
               <button
@@ -378,18 +395,18 @@ function handleSaveTab() {
                 @click="applyPreset('custom')"
               >
                 <Icon name="lucide:plus" size="16" />
-                <span>Custom</span>
+                <span>{{ t('tabs.presetCustomLabel') }}</span>
               </button>
             </div>
           </div>
 
           <div>
             <label class="block text-xs font-medium text-muted pb-1.5">
-              Tab Name *
+              {{ t('tabs.tabName') }} *
             </label>
             <UInput
               v-model="tabName"
-              placeholder="e.g. College Mess, Royal Tiffin"
+              :placeholder="t('tabs.tabNamePlaceholder')"
               size="md"
               required
             />
@@ -398,7 +415,7 @@ function handleSaveTab() {
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-medium text-muted pb-1.5">
-                {{ t('tabs.unitPrice') }} ({{ tabCurrency }}) *
+                {{ t('tabs.unitPrice') }} *
               </label>
               <UInput
                 v-model="tabUnitPrice"
@@ -412,27 +429,69 @@ function handleSaveTab() {
 
             <div>
               <label class="block text-xs font-medium text-muted pb-1.5">
-                Unit Label
+                {{ t('tabs.currency') }}
               </label>
-              <UInput
-                v-model="tabUnitLabel"
-                placeholder="e.g. tiffin, meal, liter"
-                size="md"
-              />
+              <select
+                v-model="tabCurrency"
+                class="w-full rounded-md border border-default bg-elevated px-3 py-2 text-sm text-highlighted focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option v-for="c in popularCurrencies" :key="c" :value="c">
+                  {{ c }}
+                </option>
+              </select>
             </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-muted pb-1.5">
+              {{ t('tabs.unitLabel') }}
+            </label>
+            <UInput
+              v-model="tabUnitLabel"
+              :placeholder="t('tabs.unitLabelPlaceholder')"
+              size="md"
+            />
           </div>
 
           <!-- Slots Toggle (Lunch / Dinner) -->
           <div class="flex items-center justify-between p-2.5 rounded-lg border border-default bg-elevated/30">
             <div>
               <div class="text-xs font-medium text-highlighted">
-                Separate Lunch & Dinner Slots
+                {{ t('tabs.separateSlots') }}
               </div>
               <div class="text-3xs text-muted">
-                Provides individual 1-tap toggles for Lunch and Dinner
+                {{ t('tabs.separateSlotsDesc') }}
               </div>
             </div>
             <USwitch v-model="isHasSlots" size="sm" />
+          </div>
+
+          <!-- Custom Slot Names -->
+          <div v-if="isHasSlots" class="grid gap-2">
+            <div v-for="(slot, idx) in slotLabels" :key="slot.id" class="flex items-center gap-2">
+              <UInput
+                v-model="slot.label"
+                :placeholder="`${t('tabs.slotName')} ${idx + 1}`"
+                size="sm"
+                class="flex-1"
+              />
+              <button
+                v-if="slotLabels.length > 1"
+                type="button"
+                class="interactive flex size-7 shrink-0 items-center justify-center rounded-md text-muted hover:text-error hover:bg-elevated"
+                @click="slotLabels.splice(idx, 1)"
+              >
+                <Icon name="lucide:x" size="14" />
+              </button>
+            </div>
+            <button
+              type="button"
+              class="interactive flex items-center gap-1 text-2xs text-primary hover:text-primary/80 pt-0.5"
+              @click="slotLabels.push({ id: `slot_${Date.now()}`, label: '' })"
+            >
+              <Icon name="lucide:plus" size="12" />
+              <span>{{ t('tabs.addSlot') }}</span>
+            </button>
           </div>
 
           <div class="flex justify-end gap-2 pt-2 border-t border-default/60">

@@ -1,4 +1,5 @@
 /* eslint-disable perfectionist/sort-objects */
+import { useStorage } from '@vueuse/core'
 import { useCategoriesStore } from '~/components/categories/useCategoriesStore'
 import { useTrnsFormStore } from '~/components/trnForm/useTrnsFormStore'
 import { useWalletsStore } from '~/components/wallets/useWalletsStore'
@@ -22,6 +23,7 @@ export function useMenuData() {
   const walletsStore = useWalletsStore()
   const categoriesStore = useCategoriesStore()
   const route = useRoute()
+  const isShowCurrencies = useStorage('finapp.isShowCurrencies', false)
 
   const items = computed<Record<string, MenuItem>>(() => {
     const list: Record<string, MenuItem> = {
@@ -57,10 +59,14 @@ export function useMenuData() {
         icon: 'hugeicons:invoice-03',
         name: t('tabs.title', 'Daily Tabs & Mess'),
       },
-      currencies: {
-        icon: 'hugeicons:money-exchange-01',
-        name: t('currencies.page.title'),
-      },
+      ...(isShowCurrencies.value
+        ? {
+            currencies: {
+              icon: 'hugeicons:money-exchange-01',
+              name: t('currencies.page.title'),
+            },
+          }
+        : {}),
       history: {
         icon: 'hugeicons:archive-01',
         name: t('trns.history'),

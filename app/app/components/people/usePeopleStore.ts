@@ -17,6 +17,7 @@ export interface LendingEntry {
   personId: string
   type: LendingType
   amount: number
+  paidAmount: number // cumulative amount repaid so far
   currency: string
   date: number
   dueDate?: number
@@ -64,14 +65,15 @@ export const usePeopleStore = defineStore('people', () => {
         continue
 
       if (e.status === 'open') {
+        const remaining = getRemainingBalance(e)
         b.openEntriesCount++
         if (e.type === 'lent') {
-          b.totalLent += e.amount
-          b.netBalance += e.amount
+          b.totalLent += remaining
+          b.netBalance += remaining
         }
         else {
-          b.totalBorrowed += e.amount
-          b.netBalance -= e.amount
+          b.totalBorrowed += remaining
+          b.netBalance -= remaining
         }
       }
     }
@@ -116,11 +118,16 @@ export const usePeopleStore = defineStore('people', () => {
     }
   }
 
-  function addEntry(data: Omit<LendingEntry, 'id' | 'status'> & { status?: LendingStatus }): string {
+  function getRemainingBalance(entry: LendingEntry): number {
+    return Math.max(0, entry.amount - (entry.paidAmount || 0))
+  }
+
+  function addEntry(data: Omit<LendingEntry, 'id' | 'status' | 'paidAmount'> & { status?: LendingStatus, paidAmount?: number }): string {
     const id = `le_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
     entries.value[id] = {
       id,
       ...data,
+      paidAmount: data.paidAmount ?? 0,
       status: data.status ?? 'open',
     }
     return id
@@ -140,6 +147,20 @@ export const usePeopleStore = defineStore('people', () => {
 
   function deleteEntry(id: string) {
     delete entries.value[id]
+  }
+
+  function addPartialPayment(entryId: string, paymentAmount: number) {
+    const entry = entries.value[entryId]
+    if (!entry || paymentAmount <= 0)
+      return
+
+    const currentPaid = entry.paidAmount || 0
+    const newPaid = currentPaid + paymentAmount
+    entry.paidAmount = newPaid
+
+    // Auto-settle if fully repaid
+    if (newPaid >= entry.amount)
+      entry.status = 'paid'
   }
 
   function getEntriesForPerson(personId: string): LendingEntry[] {
@@ -210,6 +231,8 @@ export const usePeopleStore = defineStore('people', () => {
     updateEntry,
     toggleEntryStatus,
     deleteEntry,
+    addPartialPayment,
+    getRemainingBalance,
     getEntriesForPerson,
     settleAllForPerson,
     seedSamplePeople,

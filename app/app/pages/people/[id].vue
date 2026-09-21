@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { usePeopleStore, type LendingType } from '~/components/people/usePeopleStore'
+import { usePeopleStore, type LendingType, type LendingEntry } from '~/components/people/usePeopleStore'
 import { useCurrenciesStore } from '~/components/currencies/useCurrenciesStore'
 
 defineOptions({ name: 'PersonDetailPage' })
@@ -26,6 +26,9 @@ const isEditContactOpen = ref(false)
 const isOptionsOpen = ref(false)
 const isShowDeleteConfirm = ref(false)
 const isShowSettleConfirm = ref(false)
+const isPartialPayOpen = ref(false)
+const partialPayEntry = ref<LendingEntry | null>(null)
+const partialPayAmount = ref<number | undefined>(undefined)
 
 const editName = ref('')
 const editPhone = ref('')
@@ -77,6 +80,23 @@ function handleAddEntry() {
   })
 
   isAddEntryOpen.value = false
+}
+
+function openPartialPay(entry: LendingEntry) {
+  partialPayEntry.value = entry
+  partialPayAmount.value = undefined
+  isPartialPayOpen.value = true
+}
+
+function handlePartialPay() {
+  if (!partialPayEntry.value || !partialPayAmount.value || partialPayAmount.value <= 0)
+    return
+
+  const remaining = peopleStore.getRemainingBalance(partialPayEntry.value)
+  const amount = Math.min(partialPayAmount.value, remaining)
+  peopleStore.addPartialPayment(partialPayEntry.value.id, amount)
+  isPartialPayOpen.value = false
+  partialPayEntry.value = null
 }
 
 function handleDeletePersonConfirm() {
@@ -264,22 +284,45 @@ function formatDate(timestamp: number) {
                 <div class="text-3xs text-dimmed flex items-center gap-1.5 pt-0.5 whitespace-nowrap overflow-hidden">
                   <span>{{ formatDate(entry.date) }}</span>
                   <span v-if="entry.dueDate" class="text-amber-500 font-medium truncate">
-                    • Due: {{ formatDate(entry.dueDate) }}
+                    • {{ t('people.dueLabel') }}: {{ formatDate(entry.dueDate) }}
                   </span>
+                </div>
+                <!-- Partial payment progress -->
+                <div v-if="entry.status === 'open' && (entry.paidAmount || 0) > 0" class="text-3xs text-muted flex items-center gap-1 pt-0.5">
+                  <Icon name="lucide:trending-down" size="10" class="text-income" />
+                  <span>{{ t('people.paidSoFar') }}: {{ entry.currency }} {{ (entry.paidAmount || 0).toLocaleString() }}</span>
+                  <span class="text-dimmed">/ {{ entry.currency }} {{ entry.amount.toLocaleString() }}</span>
                 </div>
               </div>
 
               <!-- Right side: Amount & Quick Actions -->
               <div class="flex items-center gap-1.5 shrink-0">
-                <Amount
-                  :amount="entry.amount"
-                  :currencyCode="entry.currency"
-                  :colorize="entry.type === 'lent' ? 'income' : 'expense'"
-                  :isShowPlus="entry.type === 'lent'"
-                  :isShowMinus="entry.type === 'borrowed'"
-                  variant="sm"
-                  align="right"
-                />
+                <!-- Show remaining balance if partially paid -->
+                <div class="text-right">
+                  <Amount
+                    :amount="peopleStore.getRemainingBalance(entry)"
+                    :currencyCode="entry.currency"
+                    :colorize="entry.type === 'lent' ? 'income' : 'expense'"
+                    :isShowPlus="entry.type === 'lent'"
+                    :isShowMinus="entry.type === 'borrowed'"
+                    variant="sm"
+                    align="right"
+                  />
+                  <div v-if="(entry.paidAmount || 0) > 0 && entry.status === 'open'" class="text-4xs text-dimmed">
+                    {{ t('people.ofTotal') }} {{ entry.currency }} {{ entry.amount.toLocaleString() }}
+                  </div>
+                </div>
+
+                <!-- Partial Pay button (only for open entries) -->
+                <button
+                  v-if="entry.status === 'open'"
+                  type="button"
+                  :title="t('people.partialPay')"
+                  class="interactive flex size-8 items-center justify-center rounded-lg text-muted hover:text-income hover:bg-income/10"
+                  @click="openPartialPay(entry)"
+                >
+                  <Icon name="lucide:banknote" size="15" />
+                </button>
 
                 <!-- Status toggle button -->
                 <button
@@ -318,7 +361,7 @@ function formatDate(timestamp: number) {
             </label>
             <UInput
               v-model="editName"
-              placeholder="e.g. Alex Rivera"
+              :placeholder="t('people.namePlaceholder')"
               size="md"
               autofocus
               required
@@ -331,7 +374,7 @@ function formatDate(timestamp: number) {
             </label>
             <UInput
               v-model="editPhone"
-              placeholder="e.g. +1 555 0192"
+              :placeholder="t('people.phonePlaceholder')"
               size="md"
             />
           </div>
@@ -376,14 +419,14 @@ function formatDate(timestamp: number) {
             </label>
             <UInput
               v-model="entryDesc"
-              placeholder="e.g. Dinner, rent share, emergency cash"
+              :placeholder="t('people.descPlaceholder')"
               size="md"
             />
           </div>
 
           <div>
             <label class="block text-xs font-medium text-muted pb-1.5">
-              Expected Repayment Date (optional)
+              {{ t('people.repaymentDate') }}
             </label>
             <UInput
               v-model="entryDueDate"
@@ -404,6 +447,65 @@ function formatDate(timestamp: number) {
       </template>
     </UModal>
 
+    <!-- Partial Payment Modal -->
+    <UModal
+      v-model:open="isPartialPayOpen"
+      :title="t('people.partialPay')"
+    >
+      <template #body>
+        <div v-if="partialPayEntry" class="grid gap-3.5 p-4">
+          <!-- Payment breakdown card -->
+          <div class="rounded-xl border border-default bg-elevated/40 p-3 grid gap-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-muted">{{ t('people.originalAmount') }}</span>
+              <span class="text-highlighted font-medium">{{ partialPayEntry.currency }} {{ partialPayEntry.amount.toLocaleString() }}</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-muted">{{ t('people.paidSoFar') }}</span>
+              <span class="text-income font-medium">{{ partialPayEntry.currency }} {{ (partialPayEntry.paidAmount || 0).toLocaleString() }}</span>
+            </div>
+            <div class="border-t border-default/60 pt-2 flex items-center justify-between text-xs">
+              <span class="text-muted font-semibold">{{ t('people.remaining') }}</span>
+              <span class="text-highlighted font-bold">{{ partialPayEntry.currency }} {{ peopleStore.getRemainingBalance(partialPayEntry).toLocaleString() }}</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-muted pb-1.5">
+              {{ t('people.payAmount') }} ({{ partialPayEntry.currency }}) *
+            </label>
+            <UInput
+              v-model="partialPayAmount"
+              type="number"
+              step="any"
+              placeholder="0.00"
+              size="lg"
+              autofocus
+              :max="peopleStore.getRemainingBalance(partialPayEntry)"
+            />
+            <div v-if="partialPayAmount && partialPayAmount >= peopleStore.getRemainingBalance(partialPayEntry)" class="text-3xs text-income pt-1 flex items-center gap-1">
+              <Icon name="lucide:check-circle-2" size="12" />
+              <span>{{ t('people.autoSettled') }}</span>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2 border-t border-default/60">
+            <UButton variant="ghost" color="neutral" size="sm" @click="isPartialPayOpen = false">
+              {{ t('base.cancel') }}
+            </UButton>
+            <UButton
+              color="primary"
+              size="sm"
+              :disabled="!partialPayAmount || partialPayAmount <= 0"
+              @click="handlePartialPay"
+            >
+              {{ t('people.confirmPay') }}
+            </UButton>
+          </div>
+        </div>
+      </template>
+    </UModal>
+
     <!-- Confirm Delete Contact Modal -->
     <LayoutConfirmModal
       v-if="isShowDeleteConfirm"
@@ -416,7 +518,7 @@ function formatDate(timestamp: number) {
     <LayoutConfirmModal
       v-if="isShowSettleConfirm"
       :title="t('people.settleAll')"
-      description="Mark all outstanding records for this contact as settled?"
+      :description="t('people.settleAllConfirm')"
       @closed="isShowSettleConfirm = false"
       @confirm="handleSettleAllConfirm"
     />

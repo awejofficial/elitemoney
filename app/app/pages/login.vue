@@ -28,7 +28,10 @@ const OAUTH_PENDING_KEY = 'finapp.oauthPending'
 const isOauthReturn = ref(false)
 
 async function onGoogle() {
-  isDemo.value = null
+  // Clear any existing demo mode cookie so real database sync engages
+  const demoCookie = useCookie('finapp.isDemo')
+  demoCookie.value = undefined
+  isDemo.value = undefined
   isLoading.value = true
 
   try {
@@ -78,8 +81,10 @@ function clearOauthReturn() {
 onMounted(() => {
   const params = new URLSearchParams(window.location.search)
   const pending = sessionStorage.getItem(OAUTH_PENDING_KEY) === '1'
+  const hasCode = params.has('code')
+  const hasHashToken = typeof window !== 'undefined' && window.location.hash.includes('access_token=')
 
-  if (params.has('error')) {
+  if (params.has('error') || (typeof window !== 'undefined' && window.location.hash.includes('error='))) {
     sessionStorage.removeItem(OAUTH_PENDING_KEY)
     logger.error(
       'google auth error:',
@@ -89,7 +94,7 @@ onMounted(() => {
     return
   }
 
-  if (pending || params.has('code')) {
+  if (pending || hasCode || hasHashToken) {
     isOauthReturn.value = true
     isLoading.value = true
     oauthTimeout = setTimeout(() => {
@@ -107,10 +112,15 @@ onUnmounted(() => {
 watch(
   session,
   (next) => {
-    if (next && isOauthReturn.value) {
+    if (next) {
+      const demoCookie = useCookie('finapp.isDemo')
+      demoCookie.value = undefined
+      isDemo.value = undefined
       if (oauthTimeout)
         clearTimeout(oauthTimeout)
       sessionStorage.removeItem(OAUTH_PENDING_KEY)
+      isOauthReturn.value = false
+      isLoading.value = false
       router.replace(getSafeRedirectPath(route.query.redirect))
     }
   },
@@ -120,7 +130,7 @@ watch(
 
 <template>
   <div
-    class="mx-auto grid size-full h-dvh max-w-xl grid-rows-[auto_1fr_auto] px-2 py-3"
+    class="mx-auto grid size-full min-h-dvh max-w-xl grid-rows-[auto_1fr_auto] px-2 py-3"
   >
     <div class="flex items-center justify-end">
       <div class="w-fit max-md:fixed max-md:top-5 max-md:right-5 max-md:z-30">
@@ -133,11 +143,12 @@ watch(
     >
       <div class="flex flex-col items-center justify-center">
         <UiLogo size="lg" />
-        <div class="text-muted pt-1 text-sm">
+        <div class="text-muted pt-1 text-sm text-center">
           {{ t("login.description") }}
         </div>
 
         <div class="grid min-w-[320px] items-center gap-3 pt-22">
+          <!-- Google Auth Button -->
           <button
             class="shiny-pro"
             :disabled="isLoading"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useTabsStore } from '~/components/tabs/useTabsStore'
+import { useCurrenciesStore } from '~/components/currencies/useCurrenciesStore'
 import { useWalletsStore } from '~/components/wallets/useWalletsStore'
 import { useCategoriesStore } from '~/components/categories/useCategoriesStore'
 
@@ -9,6 +10,7 @@ const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 const tabsStore = useTabsStore()
+const currenciesStore = useCurrenciesStore()
 const walletsStore = useWalletsStore()
 const categoriesStore = useCategoriesStore()
 
@@ -77,6 +79,56 @@ const isOptionsOpen = ref(false)
 const isSettleModalOpen = ref(false)
 const isDeleteConfirmOpen = ref(false)
 const isShareToastOpen = ref(false)
+const isEditModalOpen = ref(false)
+
+const popularCurrencies = computed(() => {
+  const base = currenciesStore.base || 'INR'
+  const list = ['INR', 'USD', 'EUR', 'GBP', 'AED', 'CAD', 'AUD', 'SGD', 'JPY', 'CNY', 'RUB']
+  if (!list.includes(base))
+    return [base, ...list]
+  return [base, ...list.filter(c => c !== base)]
+})
+
+const editName = ref('')
+const editUnitPrice = ref<number | undefined>(70)
+const editUnitLabel = ref('tiffin')
+const editCurrency = ref('INR')
+const editHasSlots = ref(true)
+const editSlotLabels = ref<{ id: string; label: string }[]>([])
+
+function openEditModal() {
+  if (!tab.value)
+    return
+  editName.value = tab.value.name
+  editUnitPrice.value = tab.value.unitPrice
+  editUnitLabel.value = tab.value.unitLabel
+  editCurrency.value = tab.value.currency || currenciesStore.base || 'INR'
+  editHasSlots.value = Boolean(tab.value.slots && tab.value.slots.length > 0)
+  editSlotLabels.value = tab.value.slots?.length
+    ? tab.value.slots.map(s => ({ id: s.id, label: s.label }))
+    : []
+  isEditModalOpen.value = true
+}
+
+function handleSaveEdit() {
+  if (!editName.value.trim() || !editUnitPrice.value || editUnitPrice.value <= 0)
+    return
+
+  const slots = editHasSlots.value && editSlotLabels.value.length > 0
+    ? editSlotLabels.value
+        .filter(s => s.label.trim())
+        .map(s => ({ id: s.id || `slot_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, label: s.label.trim(), defaultCount: 1 }))
+    : []
+
+  tabsStore.updateTab(tabId.value, {
+    name: editName.value.trim(),
+    unitPrice: Number(editUnitPrice.value),
+    unitLabel: editUnitLabel.value.trim() || 'unit',
+    currency: editCurrency.value,
+    slots,
+  })
+  isEditModalOpen.value = false
+}
 
 const settleWalletId = ref('')
 const settleCategoryId = ref('')
@@ -167,6 +219,13 @@ function handleDeleteConfirm() {
           <template #content>
             <div class="p-1 pt-3 pb-2 min-w-[200px]">
               <UiHeaderLink
+                icon="lucide:pencil"
+                @click="isOptionsOpen = false; openEditModal()"
+              >
+                {{ t('tabs.edit') }}
+              </UiHeaderLink>
+
+              <UiHeaderLink
                 icon="lucide:share-2"
                 @click="isOptionsOpen = false; handleShareSlip()"
               >
@@ -233,14 +292,14 @@ function handleDeleteConfirm() {
                   variant="xl"
                   class="font-bold text-2xl text-highlighted"
                 />
-                <UBadge
-                  v-if="monthSummary.isSettled"
-                  color="success"
-                  variant="subtle"
-                  size="xs"
-                >
-                  Paid
-                </UBadge>
+                  <UBadge
+                    v-if="monthSummary.isSettled"
+                    color="success"
+                    variant="subtle"
+                    size="xs"
+                  >
+                    {{ t('tabs.paid') }}
+                  </UBadge>
               </div>
             </div>
 
@@ -257,21 +316,21 @@ function handleDeleteConfirm() {
           <!-- Quick Metrics Row -->
           <div class="grid grid-cols-3 gap-2 pt-2 border-t border-default/40 text-center">
             <div class="p-2 rounded-lg bg-elevated/30">
-              <div class="text-3xs text-muted uppercase font-medium">Attended</div>
+              <div class="text-3xs text-muted uppercase font-medium">{{ t('tabs.attended') }}</div>
               <div class="text-xs font-bold text-highlighted pt-0.5">
-                {{ monthSummary.attendedDays }} days
+                {{ monthSummary.attendedDays }} {{ t('tabs.days') }}
               </div>
             </div>
 
             <div class="p-2 rounded-lg bg-elevated/30">
-              <div class="text-3xs text-muted uppercase font-medium">Skipped</div>
+              <div class="text-3xs text-muted uppercase font-medium">{{ t('tabs.skipped') }}</div>
               <div class="text-xs font-bold text-amber-500 pt-0.5">
                 {{ monthSummary.skippedUnits }} {{ tab.unitLabel }}s
               </div>
             </div>
 
             <div class="p-2 rounded-lg bg-elevated/30">
-              <div class="text-3xs text-muted uppercase font-medium">Saved</div>
+              <div class="text-3xs text-muted uppercase font-medium">{{ t('tabs.saved') }}</div>
               <div class="text-xs font-bold text-income pt-0.5">
                 {{ tab.currency }} {{ monthSummary.savedAmount }}
               </div>
@@ -293,7 +352,7 @@ function handleDeleteConfirm() {
             </UButton>
             <div v-else class="flex items-center justify-center text-xs text-income font-medium gap-1 bg-income/10 rounded-xl py-1.5 border border-income/20">
               <Icon name="lucide:check-circle-2" size="16" />
-              <span>Month Settled</span>
+              <span>{{ t('tabs.monthSettled') }}</span>
             </div>
 
             <UButton
@@ -325,7 +384,7 @@ function handleDeleteConfirm() {
               {{ t('tabs.history') }}
             </h3>
             <span class="text-xs text-muted">
-              {{ daysInSelectedMonth.length }} days
+              {{ daysInSelectedMonth.length }} {{ t('tabs.days') }}
             </span>
           </div>
 
@@ -356,13 +415,13 @@ function handleDeleteConfirm() {
                 <div class="min-w-0">
                   <div class="text-xs font-medium flex items-center gap-1.5">
                     <span :class="day.isToday ? 'text-primary font-bold' : 'text-highlighted'">
-                      {{ day.isToday ? 'Today' : `${displayMonthName.slice(0, 3)} ${day.dayNum}` }}
+                      {{ day.isToday ? t('tabs.today') : `${displayMonthName.slice(0, 3)} ${day.dayNum}` }}
                     </span>
                     <span
                       v-if="tabsStore.getDayLog(tab.id, day.dateKey).totalUnits === 0"
                       class="text-3xs text-muted italic"
                     >
-                      (Off / Skipped)
+                      ({{ t('tabs.offSkipped') }})
                     </span>
                   </div>
 
@@ -439,7 +498,7 @@ function handleDeleteConfirm() {
         <div class="grid gap-3.5 p-4">
           <div class="rounded-xl border border-default bg-elevated/40 p-3 flex items-center justify-between">
             <div>
-              <div class="text-xs text-muted">Total Payable</div>
+              <div class="text-xs text-muted">{{ t('tabs.totalPayable') }}</div>
               <div class="text-lg font-bold text-highlighted pt-0.5">
                 {{ tab.currency }} {{ monthSummary.totalAmount }}
               </div>
@@ -451,7 +510,7 @@ function handleDeleteConfirm() {
 
           <div>
             <label class="block text-xs font-medium text-muted pb-1.5">
-              Pay From Wallet *
+              {{ t('tabs.payFromWallet') }} *
             </label>
             <select
               v-model="settleWalletId"
@@ -469,7 +528,7 @@ function handleDeleteConfirm() {
 
           <div>
             <label class="block text-xs font-medium text-muted pb-1.5">
-              Expense Category
+              {{ t('tabs.expenseCategory') }}
             </label>
             <select
               v-model="settleCategoryId"
@@ -490,7 +549,7 @@ function handleDeleteConfirm() {
               {{ t('base.cancel') }}
             </UButton>
             <UButton color="primary" size="sm" :disabled="!settleWalletId" @click="handleConfirmSettle">
-              Confirm & Settle
+              {{ t('tabs.confirmSettle') }}
             </UButton>
           </div>
         </div>
@@ -504,5 +563,115 @@ function handleDeleteConfirm() {
       @closed="isDeleteConfirmOpen = false"
       @confirm="handleDeleteConfirm"
     />
+
+    <!-- Edit Tab Modal -->
+    <UModal v-model:open="isEditModalOpen" :title="t('tabs.edit')">
+      <template #body>
+        <form class="grid gap-3.5 p-4" @submit.prevent="handleSaveEdit">
+          <div>
+            <label class="block text-xs font-medium text-muted pb-1.5">
+              {{ t('tabs.tabName') }} *
+            </label>
+            <UInput
+              v-model="editName"
+              :placeholder="t('tabs.tabNamePlaceholder')"
+              size="md"
+              required
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-muted pb-1.5">
+                {{ t('tabs.unitPrice') }} *
+              </label>
+              <UInput
+                v-model="editUnitPrice"
+                type="number"
+                step="any"
+                placeholder="70"
+                size="md"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-muted pb-1.5">
+                {{ t('tabs.currency') }}
+              </label>
+              <select
+                v-model="editCurrency"
+                class="w-full rounded-md border border-default bg-elevated px-3 py-2 text-sm text-highlighted focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option v-for="c in popularCurrencies" :key="c" :value="c">
+                  {{ c }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-muted pb-1.5">
+              {{ t('tabs.unitLabel') }}
+            </label>
+            <UInput
+              v-model="editUnitLabel"
+              :placeholder="t('tabs.unitLabelPlaceholder')"
+              size="md"
+            />
+          </div>
+
+          <!-- Slots Toggle (Lunch / Dinner) -->
+          <div class="flex items-center justify-between p-2.5 rounded-lg border border-default bg-elevated/30">
+            <div>
+              <div class="text-xs font-medium text-highlighted">
+                {{ t('tabs.separateSlots') }}
+              </div>
+              <div class="text-3xs text-muted">
+                {{ t('tabs.separateSlotsDesc') }}
+              </div>
+            </div>
+            <USwitch v-model="editHasSlots" size="sm" />
+          </div>
+
+          <!-- Custom Slot Names -->
+          <div v-if="editHasSlots" class="grid gap-2">
+            <div v-for="(slot, idx) in editSlotLabels" :key="slot.id" class="flex items-center gap-2">
+              <UInput
+                v-model="slot.label"
+                :placeholder="`${t('tabs.slotName')} ${idx + 1}`"
+                size="sm"
+                class="flex-1"
+              />
+              <button
+                v-if="editSlotLabels.length > 1"
+                type="button"
+                class="interactive flex size-7 shrink-0 items-center justify-center rounded-md text-muted hover:text-error hover:bg-elevated"
+                @click="editSlotLabels.splice(idx, 1)"
+              >
+                <Icon name="lucide:x" size="14" />
+              </button>
+            </div>
+            <button
+              type="button"
+              class="interactive flex items-center gap-1 text-2xs text-primary hover:text-primary/80 pt-0.5"
+              @click="editSlotLabels.push({ id: `slot_${Date.now()}`, label: '' })"
+            >
+              <Icon name="lucide:plus" size="12" />
+              <span>{{ t('tabs.addSlot') }}</span>
+            </button>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2 border-t border-default/60">
+            <UButton variant="ghost" color="neutral" size="sm" @click="isEditModalOpen = false">
+              {{ t('base.cancel') }}
+            </UButton>
+            <UButton type="submit" color="primary" size="sm" :disabled="!editName.trim() || !editUnitPrice || editUnitPrice <= 0">
+              {{ t('base.save') }}
+            </UButton>
+          </div>
+        </form>
+      </template>
+    </UModal>
   </UiPage>
 </template>

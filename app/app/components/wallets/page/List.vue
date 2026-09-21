@@ -222,7 +222,7 @@ const groupNavItems = computed<NavigationMenuItem[]>(() =>
 
         <div class="pb-6 md:max-w-lg @xl/page:max-w-lg">
           <div
-            v-if="groupedBy === 'none'"
+            v-if="groupedBy === 'none' && selectedWalletsIds.length > 0"
             class="md:max-w-lg"
           >
             <WalletsPageListItem
@@ -231,6 +231,23 @@ const groupNavItems = computed<NavigationMenuItem[]>(() =>
               :walletId
               @delete="requestDelete"
             />
+          </div>
+
+          <!-- Fallback: filters hide all wallets -->
+          <div
+            v-else-if="groupedBy === 'none' && selectedWalletsIds.length === 0"
+            class="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-default p-6 text-center"
+          >
+            <div class="text-xs text-muted">
+              {{ t('wallets.noMatchFilter') }}
+            </div>
+            <UiButtonAccent
+              rounded
+              class="text-xs"
+              @click="walletViewType = 'total'; currencyFiltered = 'all'"
+            >
+              {{ t('wallets.resetFilter') }}
+            </UiButtonAccent>
           </div>
 
           <div

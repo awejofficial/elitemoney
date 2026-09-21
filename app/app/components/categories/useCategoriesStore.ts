@@ -4,7 +4,9 @@ import { watchTable } from '~~/services/powersync/db'
 import { deleteRow, upsertRows } from '~~/services/powersync/mutations'
 import { categoryToRow, rowToCategory } from '~~/services/powersync/transforms'
 
-import type { AddCategoryParams, Categories, CategoryId, CategoryItem } from '~/components/categories/types'
+import { generateId } from '~~/utils/generateId'
+
+import type { AddCategoryParams, BatchCategoryInput, Categories, CategoryId, CategoryItem } from '~/components/categories/types'
 import type { TrnId } from '~/components/trns/types'
 
 import { compareCategoryIds, computeChildrenDiff, getTransactibleCategoriesIds } from '~/components/categories/utils'
@@ -53,6 +55,7 @@ type CategoriesStore = {
   items: import('vue').ShallowRef<Categories>
   primeFromCache: (data: Categories | null) => void
   recentCategoriesIds: ComputedRef<CategoryId[]>
+  saveCategoriesBatch: (categoriesList: BatchCategoryInput[]) => Promise<void> | void
   saveCategory: (params: AddCategoryParams) => Promise<void> | void
   setCategories: (values: Categories | null) => void
 }
@@ -349,6 +352,64 @@ export const useCategoriesStore = defineStore('categories', (): CategoriesStore 
       })
   }
 
+  function saveCategoriesBatch(categoriesList: BatchCategoryInput[]) {
+    const prev = items.value
+    const now = Date.now()
+    const updated: Categories = { ...items.value }
+    const touchedIds: CategoryId[] = []
+
+    for (const cat of categoriesList) {
+      const rootId = generateId()
+      touchedIds.push(rootId)
+
+      updated[rootId] = {
+        color: cat.color,
+        icon: cat.icon,
+        name: cat.name,
+        parentId: 0,
+        showInLastUsed: cat.showInLastUsed ?? true,
+        showInQuickSelector: cat.showInQuickSelector ?? false,
+        updatedAt: now,
+      }
+
+      if (cat.children?.length) {
+        for (const child of cat.children) {
+          const childId = generateId()
+          touchedIds.push(childId)
+          updated[childId] = {
+            color: child.color || cat.color,
+            icon: child.icon,
+            name: child.name,
+            parentId: rootId,
+            showInLastUsed: child.showInLastUsed ?? true,
+            showInQuickSelector: child.showInQuickSelector ?? false,
+            updatedAt: now,
+          }
+        }
+      }
+    }
+
+    setCategories(updated)
+
+    if (isDemo.value)
+      return
+
+    const userId = resolveWriteUid(uid.value)
+    const rows: { id: CategoryId, row: Record<string, unknown> }[] = []
+    for (const cid of touchedIds) {
+      const item = updated[cid]
+      if (item)
+        rows.push({ id: cid, row: categoryToRow(item, userId) })
+    }
+
+    return upsertRows('categories', rows)
+      .catch((e) => {
+        setCategories(prev)
+        logger.error('saveCategoriesBatch failed', e)
+        showErrorToast('categories.errors.saveFailed')
+      })
+  }
+
   function deleteCategory(id: CategoryId, trnsIds?: TrnId[]) {
     if (id === 'transfer' || id === 'adjustment')
       return
@@ -399,6 +460,7 @@ export const useCategoriesStore = defineStore('categories', (): CategoriesStore 
     items,
     primeFromCache,
     recentCategoriesIds,
+    saveCategoriesBatch,
     saveCategory,
     setCategories,
   }

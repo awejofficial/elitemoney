@@ -331,7 +331,7 @@ function getCategoryColor(id: string) {
             </label>
             <UInput
               v-model="ruleName"
-              placeholder="e.g. Netflix Subscription, Apartment Rent"
+              :placeholder="t('recurring.ruleNamePlaceholder')"
               size="md"
               autofocus
               required
@@ -444,7 +444,7 @@ function getCategoryColor(id: string) {
             </label>
             <UInput
               v-model="ruleNote"
-              placeholder="e.g. Family 4K plan, Direct deposit"
+              :placeholder="t('recurring.notePlaceholder')"
               size="md"
             />
           </div>

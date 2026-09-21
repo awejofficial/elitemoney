@@ -229,7 +229,7 @@ function handleSavePerson() {
             </label>
             <UInput
               v-model="personName"
-              placeholder="e.g. Alex Rivera"
+              :placeholder="t('people.namePlaceholder')"
               size="md"
               autofocus
               required
@@ -242,7 +242,7 @@ function handleSavePerson() {
             </label>
             <UInput
               v-model="personPhone"
-              placeholder="e.g. +1 555 0192"
+              :placeholder="t('people.phonePlaceholder')"
               size="md"
             />
           </div>
