@@ -7,6 +7,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { UpdateType } from '@powersync/web'
 
+import { logAppError } from '~/composables/useErrorLogs'
 import { createLogger } from '~/utils/logger'
 
 import { notifyFatalUploadError } from './uploadErrorHandler'
@@ -47,6 +48,8 @@ export class SupabaseConnector implements PowerSyncBackendConnector {
     if (!transaction)
       return
 
+    logger.log(`uploadData: processing ${transaction.crud.length} ops`)
+
     // Op currently being applied: a fatal failure discards it plus every op after it.
     let failedIndex = -1
     try {
@@ -75,8 +78,15 @@ export class SupabaseConnector implements PowerSyncBackendConnector {
       }
 
       await transaction.complete()
+      logger.log(`uploadData: completed ${transaction.crud.length} ops successfully`)
     }
     catch (ex: any) {
+      logger.error('uploadData error', ex)
+      logAppError('powersync-upload-crud', ex, {
+        failedOp: transaction.crud[failedIndex],
+        totalOps: transaction.crud.length,
+      })
+
       if (typeof ex.code === 'string' && FATAL_RESPONSE_CODES.some(re => re.test(ex.code))) {
         // Unrecoverable - discard the transaction so the queue isn't blocked. Ops before
         // failedIndex already committed server-side; the failing op and those after it

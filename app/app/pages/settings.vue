@@ -4,13 +4,16 @@ import pkg from '~~/package.json'
 
 import type { LocaleSlug } from '~/components/locale/types'
 
+import { clearBiometricCredential, hasBiometricCredential, isBiometricAvailable, registerBiometric } from '~/components/security/biometric'
+import { clearPin, hasPin, setPin, verifyPin } from '~/components/security/pin'
+import ErrorLogsModal from '~/components/settings/ErrorLogsModal.vue'
 import { useCurrenciesStore } from '~/components/currencies/useCurrenciesStore'
 import { useDemo } from '~/components/demo/useDemo'
 import { useUserStore } from '~/components/user/useUserStore'
-import { showSuccessToast } from '~/composables/useStoreSync'
-
-import { clearPin, hasPin, setPin, verifyPin } from '~/components/security/pin'
-import { clearBiometricCredential, hasBiometricCredential, isBiometricAvailable, registerBiometric } from '~/components/security/biometric'
+import { useErrorLogs } from '~/composables/useErrorLogs'
+import { showErrorToast, showSuccessToast } from '~/composables/useStoreSync'
+import { useSupabase, useSupabaseAuth } from '~/composables/useSupabase'
+import { forceResync, getPendingUploadCount } from '~~/services/powersync/db'
 
 const { locale, t } = useI18n()
 const userStore = useUserStore()
@@ -20,6 +23,41 @@ const { isDemo } = useDemo()
 const isShowBaseCurrencyModal = ref(false)
 const isShowMenuLabels = useStorage('finapp.isShowMenuLabels', true)
 const isShowCurrencies = useStorage('finapp.isShowCurrencies', false)
+
+const { errorLogs, hasErrors } = useErrorLogs()
+const isShowErrorLogsModal = ref(false)
+const pendingUploads = ref(0)
+const isResyncing = ref(false)
+const { uid } = useSupabaseAuth()
+const supabaseClient = useSupabase()
+const runtimeConfig = useRuntimeConfig()
+const powerSyncUrl = runtimeConfig.public.powersyncUrl as string
+
+async function refreshPendingUploads() {
+  if (import.meta.client && !isDemo.value) {
+    try {
+      pendingUploads.value = await getPendingUploadCount()
+    }
+    catch {}
+  }
+}
+
+async function handleForceResync() {
+  if (!uid.value || isResyncing.value)
+    return
+  isResyncing.value = true
+  try {
+    await forceResync(supabaseClient, powerSyncUrl, uid.value)
+    showSuccessToast('alerts.saved')
+    await refreshPendingUploads()
+  }
+  catch {
+    showErrorToast('sync.errors.uploadDiverged')
+  }
+  finally {
+    isResyncing.value = false
+  }
+}
 
 const isPinActive = ref(false)
 const isBiometricActive = ref(false)
@@ -41,6 +79,7 @@ function refreshSecurityStatus() {
 
 onMounted(() => {
   refreshSecurityStatus()
+  refreshPendingUploads()
 })
 
 function openSetPinModal() {
@@ -246,6 +285,48 @@ function onGenerateDemoData() {
         <!-- Notifications & Reminders -->
         <SettingsNotificationsCard />
 
+        <!-- Diagnostics & Error Logs -->
+        <UiSettingsCard :title="t('settings.diagnostics', 'Diagnostics & Error Logs')">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium">{{ t('settings.errorLogs', 'Application Error Logs') }}</p>
+                <p class="text-xs text-muted">
+                  {{ hasErrors ? t('settings.hasErrorsDesc', '{count} error(s) recorded', { count: errorLogs.length }) : t('settings.noErrorsDesc', 'No errors recorded') }}
+                </p>
+              </div>
+              <UButton
+                variant="soft"
+                :color="hasErrors ? 'error' : 'neutral'"
+                size="sm"
+                icon="hugeicons:bug-02"
+                @click="isShowErrorLogsModal = true"
+              >
+                {{ t('settings.viewLogs', 'View Logs') }}
+              </UButton>
+            </div>
+
+            <div v-if="!isDemo" class="flex items-center justify-between pt-2 border-t border-default/10">
+              <div>
+                <p class="text-sm font-medium">{{ t('settings.syncStatus', 'Sync Engine') }}</p>
+                <p class="text-xs text-muted">
+                  {{ pendingUploads > 0 ? t('settings.pendingUploads', '{count} change(s) pending upload', { count: pendingUploads }) : t('settings.allSynced', 'Local database ready') }}
+                </p>
+              </div>
+              <UButton
+                variant="outline"
+                color="neutral"
+                size="sm"
+                icon="hugeicons:repeat"
+                :loading="isResyncing"
+                @click="handleForceResync"
+              >
+                {{ t('sync.actions.reloadFromServer', 'Re-sync') }}
+              </UButton>
+            </div>
+          </div>
+        </UiSettingsCard>
+
         <!-- Extension point for layers (e.g. premium Telegram card) -->
         <ExtensionSlot name="settings" />
 
@@ -365,5 +446,10 @@ function onGenerateDemoData() {
         </div>
       </template>
     </UModal>
+
+    <ErrorLogsModal
+      v-if="isShowErrorLogsModal"
+      @close="isShowErrorLogsModal = false"
+    />
   </UiPage>
 </template>
