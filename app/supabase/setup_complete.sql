@@ -71,21 +71,23 @@ create table if not exists public.rates (
 create unique index if not exists rates_date_source_idx on public.rates (date, coalesce(source, ''));
 
 -- 2. EXTENDED APP TABLES (Synced via Supabase Realtime & PostgREST)
+-- All id and reference columns are text strings (UUID format) without strict foreign keys
+-- to prevent type incompatibilities and upload-order race conditions in offline sync.
 -- ---------------------------------------------------------------------------
 
 -- People & Lending
 create table if not exists public.people (
-  id          uuid primary key default gen_random_uuid(),
-  user_id     uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  id          text primary key default gen_random_uuid()::text,
+  user_id     text not null default auth.uid()::text,
   name        text not null,
   created_at  timestamptz not null default now()
 );
 create index if not exists people_user_id_idx on public.people (user_id);
 
 create table if not exists public.lending_entries (
-  id          uuid primary key default gen_random_uuid(),
-  user_id     uuid not null references auth.users (id) on delete cascade default auth.uid(),
-  person_id   uuid not null references public.people (id) on delete cascade,
+  id          text primary key default gen_random_uuid()::text,
+  user_id     text not null default auth.uid()::text,
+  person_id   text not null,
   direction   text not null check (direction in ('lent', 'borrowed')),
   amount      numeric(14, 2) not null check (amount > 0),
   date        date not null default current_date,
@@ -98,9 +100,9 @@ create index if not exists lending_entries_person_id_idx on public.lending_entri
 create index if not exists lending_entries_due_date_idx on public.lending_entries (due_date) where due_date is not null;
 
 create table if not exists public.lending_repayments (
-  id                uuid primary key default gen_random_uuid(),
-  user_id           uuid not null references auth.users (id) on delete cascade default auth.uid(),
-  lending_entry_id  uuid not null references public.lending_entries (id) on delete cascade,
+  id                text primary key default gen_random_uuid()::text,
+  user_id           text not null default auth.uid()::text,
+  lending_entry_id  text not null,
   amount            numeric(14, 2) not null check (amount > 0),
   date              date not null default current_date,
   note              text,
@@ -111,8 +113,8 @@ create index if not exists lending_repayments_entry_id_idx on public.lending_rep
 
 -- Recurring Rules
 create table if not exists public.recurring_rules (
-  id            uuid primary key default gen_random_uuid(),
-  user_id       uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  id            text primary key default gen_random_uuid()::text,
+  user_id       text not null default auth.uid()::text,
   type          integer not null default 0,
   frequency     text not null default 'monthly' check (frequency in ('daily', 'weekly', 'monthly', 'yearly')),
   amount        numeric(14, 2) not null check (amount > 0),
@@ -128,8 +130,8 @@ create index if not exists recurring_rules_next_run_date_idx on public.recurring
 
 -- Daily Tabs (Mess, Milk, Attendance, Habits)
 create table if not exists public.daily_tabs (
-  id                  uuid primary key default gen_random_uuid(),
-  user_id             uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  id                  text primary key default gen_random_uuid()::text,
+  user_id             text not null default auth.uid()::text,
   name                text not null,
   category_type       text not null default 'custom',
   color               text not null default '#3b82f6',
@@ -145,9 +147,9 @@ create table if not exists public.daily_tabs (
 create index if not exists daily_tabs_user_id_idx on public.daily_tabs (user_id);
 
 create table if not exists public.daily_tab_logs (
-  id          uuid primary key default gen_random_uuid(),
-  user_id     uuid not null references auth.users (id) on delete cascade default auth.uid(),
-  tab_id      uuid not null references public.daily_tabs (id) on delete cascade,
+  id          text primary key default gen_random_uuid()::text,
+  user_id     text not null default auth.uid()::text,
+  tab_id      text not null,
   date        text not null,
   total_units numeric(14, 2) not null default 0,
   slots       jsonb,
@@ -159,8 +161,8 @@ create index if not exists daily_tab_logs_tab_date_idx on public.daily_tab_logs 
 
 create table if not exists public.daily_tab_settlements (
   id            text primary key,
-  user_id       uuid not null references auth.users (id) on delete cascade default auth.uid(),
-  tab_id        uuid not null references public.daily_tabs (id) on delete cascade,
+  user_id       text not null default auth.uid()::text,
+  tab_id        text not null,
   year_month    text not null,
   total_amount  numeric(14, 2) not null default 0,
   total_units   numeric(14, 2),
@@ -175,8 +177,8 @@ create index if not exists daily_tab_settlements_tab_idx on public.daily_tab_set
 
 -- Push Subscriptions (Web Push / PWA)
 create table if not exists public.push_subscriptions (
-  id          uuid primary key default gen_random_uuid(),
-  user_id     uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  id          text primary key default gen_random_uuid()::text,
+  user_id     text not null default auth.uid()::text,
   endpoint    text not null,
   keys        jsonb not null,
   created_at  timestamptz not null default now()
@@ -234,38 +236,38 @@ create policy "user_settings_owner" on public.user_settings for all to authentic
 create policy "rates_read" on public.rates for select to authenticated
   using (true);
 
--- Extended Feature Policies
+-- Extended Feature Policies (using ::text comparison for complete type compatibility)
 create policy "people_owner" on public.people for all to authenticated
-  using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
+  using ((select auth.uid())::text = user_id::text)
+  with check ((select auth.uid())::text = user_id::text);
 
 create policy "lending_entries_owner" on public.lending_entries for all to authenticated
-  using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
+  using ((select auth.uid())::text = user_id::text)
+  with check ((select auth.uid())::text = user_id::text);
 
 create policy "lending_repayments_owner" on public.lending_repayments for all to authenticated
-  using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
+  using ((select auth.uid())::text = user_id::text)
+  with check ((select auth.uid())::text = user_id::text);
 
 create policy "recurring_rules_owner" on public.recurring_rules for all to authenticated
-  using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
+  using ((select auth.uid())::text = user_id::text)
+  with check ((select auth.uid())::text = user_id::text);
 
 create policy "daily_tabs_owner" on public.daily_tabs for all to authenticated
-  using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
+  using ((select auth.uid())::text = user_id::text)
+  with check ((select auth.uid())::text = user_id::text);
 
 create policy "daily_tab_logs_owner" on public.daily_tab_logs for all to authenticated
-  using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
+  using ((select auth.uid())::text = user_id::text)
+  with check ((select auth.uid())::text = user_id::text);
 
 create policy "daily_tab_settlements_owner" on public.daily_tab_settlements for all to authenticated
-  using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
+  using ((select auth.uid())::text = user_id::text)
+  with check ((select auth.uid())::text = user_id::text);
 
 create policy "push_subscriptions_owner" on public.push_subscriptions for all to authenticated
-  using ((select auth.uid()) = user_id)
-  with check ((select auth.uid()) = user_id);
+  using ((select auth.uid())::text = user_id::text)
+  with check ((select auth.uid())::text = user_id::text);
 
 -- 4. AUTOMATIC USER SETTINGS ON SIGNUP TRIGGER
 -- ---------------------------------------------------------------------------
