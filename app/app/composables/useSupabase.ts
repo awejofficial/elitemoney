@@ -24,6 +24,12 @@ export function useSupabase(): SupabaseClient {
       auth: {
         autoRefreshToken: true,
         detectSessionInUrl: true,
+        // The Supabase project is configured for the implicit OAuth flow, which
+        // returns the session in the URL hash (#access_token=...). supabase-js v2
+        // defaults to PKCE (expecting ?code= in query params) and ignores the hash,
+        // causing the auth timeout. Setting flowType: 'implicit' makes the client
+        // parse the hash fragment so the session lands correctly after Google OAuth.
+        flowType: 'implicit',
         persistSession: true,
         // Fixed key the synchronous route gate (useAuthSession) reads directly.
         storageKey: AUTH_STORAGE_KEY,

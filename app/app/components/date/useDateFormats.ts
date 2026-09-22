@@ -21,7 +21,8 @@ export function useDateFormats() {
   }
 
   function formatDate(value: number, type: 'trnItem' | 'full') {
-    if (!value)
+    // Guard against null/undefined/NaN and epoch 0 — all represent uninitialised data.
+    if (!value || value <= 0)
       return undefined
 
     const date = new Date(value)

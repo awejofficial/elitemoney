@@ -18,6 +18,10 @@ export function toDuration(period: Period, value: number): Duration {
 }
 
 export function formatByLocale(date: Date, formatter: string, locale?: LocaleSlug) {
+  // date-fns format() throws RangeError: Invalid time value for invalid Dates
+  // (e.g. new Date(NaN) from uninitialised store data). Return '' safely instead.
+  if (!date || Number.isNaN(date.getTime()))
+    return ''
   const formatOptions = locale === 'ru' ? { locale: ru } : {}
   return format(date, formatter, formatOptions)
 }
