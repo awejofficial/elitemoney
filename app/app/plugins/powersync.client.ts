@@ -28,19 +28,19 @@ export default defineNuxtPlugin(() => {
     .then((db) => {
       db.registerListener({
         statusChanged: (status) => {
-          if (status.dataFlow?.uploadError) {
-            logger.error('PowerSync upload sync error', status.dataFlow.uploadError)
-            logAppError('powersync-sync-upload', status.dataFlow.uploadError, {
+          if (status.dataFlowStatus?.uploadError) {
+            logger.error('PowerSync upload sync error', status.dataFlowStatus.uploadError)
+            logAppError('powersync-sync-upload', status.dataFlowStatus.uploadError, {
               connected: status.connected,
               hasSynced: status.hasSynced,
-              uploading: status.dataFlow.uploading,
+              uploading: status.dataFlowStatus.uploading,
             })
           }
-          if (status.dataFlow?.downloadError) {
-            logger.error('PowerSync download sync error', status.dataFlow.downloadError)
-            logAppError('powersync-sync-download', status.dataFlow.downloadError, {
+          if (status.dataFlowStatus?.downloadError) {
+            logger.error('PowerSync download sync error', status.dataFlowStatus.downloadError)
+            logAppError('powersync-sync-download', status.dataFlowStatus.downloadError, {
               connected: status.connected,
-              downloading: status.dataFlow.downloading,
+              downloading: status.dataFlowStatus.downloading,
               hasSynced: status.hasSynced,
             })
           }

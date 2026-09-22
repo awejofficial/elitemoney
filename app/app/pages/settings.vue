@@ -292,7 +292,7 @@ function onGenerateDemoData() {
               <div>
                 <p class="text-sm font-medium">{{ t('settings.errorLogs', 'Application Error Logs') }}</p>
                 <p class="text-xs text-muted">
-                  {{ hasErrors ? t('settings.hasErrorsDesc', '{count} error(s) recorded', { count: errorLogs.length }) : t('settings.noErrorsDesc', 'No errors recorded') }}
+                  {{ hasErrors ? `${errorLogs.length} error(s) recorded` : 'No errors recorded' }}
                 </p>
               </div>
               <UButton
@@ -310,7 +310,7 @@ function onGenerateDemoData() {
               <div>
                 <p class="text-sm font-medium">{{ t('settings.syncStatus', 'Sync Engine') }}</p>
                 <p class="text-xs text-muted">
-                  {{ pendingUploads > 0 ? t('settings.pendingUploads', '{count} change(s) pending upload', { count: pendingUploads }) : t('settings.allSynced', 'Local database ready') }}
+                  {{ pendingUploads > 0 ? `${pendingUploads} change(s) pending upload` : 'Local database ready' }}
                 </p>
               </div>
               <UButton
