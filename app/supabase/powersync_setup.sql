@@ -20,10 +20,7 @@ grant usage on schema public to powersync_role;
 grant select on all tables in schema public to powersync_role;
 alter default privileges in schema public grant select on tables to powersync_role;
 
--- 3. Critical for PostgreSQL 15+ WAL LSN checkpoints (used by /write-checkpoint2.json)
-grant pg_read_all_stats to powersync_role;
-
--- 4. Publication consumed by PowerSync. Scoped to all active app tables.
+-- 3. Publication consumed by PowerSync. Scoped to all active app tables.
 drop publication if exists powersync;
 create publication powersync for table
   public.categories,

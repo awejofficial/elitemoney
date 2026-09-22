@@ -135,7 +135,6 @@ $$;
 grant usage on schema public to powersync_role;
 grant select on all tables in schema public to powersync_role;
 alter default privileges in schema public grant select on tables to powersync_role;
-grant pg_read_all_stats to powersync_role;
 
 -- 5. PowerSync Publication
 drop publication if exists powersync;
