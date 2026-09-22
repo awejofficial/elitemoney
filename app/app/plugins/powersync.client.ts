@@ -6,6 +6,7 @@ import { planDivergence } from '~~/services/powersync/uploadReconcile'
 import { useInitApp } from '~/components/app/useInitApp'
 import { useDemo } from '~/components/demo/useDemo'
 import { hasPersistedSession } from '~/composables/useAuthSession'
+import { logAppError } from '~/composables/useErrorLogs'
 import { showActionToast, showErrorToast } from '~/composables/useStoreSync'
 import { useSupabase, useSupabaseAuth } from '~/composables/useSupabase'
 import { createLogger } from '~/utils/logger'
@@ -21,6 +22,32 @@ export default defineNuxtPlugin(() => {
   const client = useSupabase()
   const { isDemo } = useDemo()
   const { isAuthReady, uid } = useSupabaseAuth()
+
+  // Register listener for sync status changes and log upload/download errors
+  getPowerSyncDb()
+    .then((db) => {
+      db.registerListener({
+        statusChanged: (status) => {
+          if (status.dataFlow?.uploadError) {
+            logger.error('PowerSync upload sync error', status.dataFlow.uploadError)
+            logAppError('powersync-sync-upload', status.dataFlow.uploadError, {
+              connected: status.connected,
+              hasSynced: status.hasSynced,
+              uploading: status.dataFlow.uploading,
+            })
+          }
+          if (status.dataFlow?.downloadError) {
+            logger.error('PowerSync download sync error', status.dataFlow.downloadError)
+            logAppError('powersync-sync-download', status.dataFlow.downloadError, {
+              connected: status.connected,
+              downloading: status.dataFlow.downloading,
+              hasSynced: status.hasSynced,
+            })
+          }
+        },
+      })
+    })
+    .catch(e => logger.error('register status listener failed', e))
 
   // Open local SQLite immediately for an already-logged-in user so the cold-start DB
   // init overlaps app boot instead of waiting for the async session to resolve.
