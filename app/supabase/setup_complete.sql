@@ -3,7 +3,8 @@
 -- Run this entire script in Supabase SQL Editor (Ctrl + Enter)
 -- ===========================================================================
 
--- 1. Create Tables
+-- 1. CORE FINANCIAL LEDGER TABLES (Synced via PowerSync SQLite)
+-- ---------------------------------------------------------------------------
 create table if not exists public.categories (
   id                    text primary key default gen_random_uuid()::text,
   "userId"              text not null,
@@ -58,6 +59,7 @@ create table if not exists public.user_settings (
   "baseCurrency"   text not null default 'USD',
   locale           text
 );
+create index if not exists user_settings_user_idx on public.user_settings ("userId");
 
 create table if not exists public.rates (
   id            text primary key default gen_random_uuid()::text,
@@ -68,12 +70,134 @@ create table if not exists public.rates (
 );
 create unique index if not exists rates_date_source_idx on public.rates (date, coalesce(source, ''));
 
--- 2. Row Level Security (RLS)
-alter table public.categories    enable row level security;
-alter table public.wallets       enable row level security;
-alter table public.trns          enable row level security;
-alter table public.user_settings enable row level security;
-alter table public.rates         enable row level security;
+-- 2. EXTENDED APP TABLES (Synced via Supabase Realtime & PostgREST)
+-- ---------------------------------------------------------------------------
+
+-- People & Lending
+create table if not exists public.people (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  name        text not null,
+  created_at  timestamptz not null default now()
+);
+create index if not exists people_user_id_idx on public.people (user_id);
+
+create table if not exists public.lending_entries (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  person_id   uuid not null references public.people (id) on delete cascade,
+  direction   text not null check (direction in ('lent', 'borrowed')),
+  amount      numeric(14, 2) not null check (amount > 0),
+  date        date not null default current_date,
+  due_date    date,
+  note        text,
+  created_at  timestamptz not null default now()
+);
+create index if not exists lending_entries_user_id_idx on public.lending_entries (user_id);
+create index if not exists lending_entries_person_id_idx on public.lending_entries (person_id);
+create index if not exists lending_entries_due_date_idx on public.lending_entries (due_date) where due_date is not null;
+
+create table if not exists public.lending_repayments (
+  id                uuid primary key default gen_random_uuid(),
+  user_id           uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  lending_entry_id  uuid not null references public.lending_entries (id) on delete cascade,
+  amount            numeric(14, 2) not null check (amount > 0),
+  date              date not null default current_date,
+  note              text,
+  created_at        timestamptz not null default now()
+);
+create index if not exists lending_repayments_user_id_idx on public.lending_repayments (user_id);
+create index if not exists lending_repayments_entry_id_idx on public.lending_repayments (lending_entry_id);
+
+-- Recurring Rules
+create table if not exists public.recurring_rules (
+  id            uuid primary key default gen_random_uuid(),
+  user_id       uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  type          integer not null default 0,
+  frequency     text not null default 'monthly' check (frequency in ('daily', 'weekly', 'monthly', 'yearly')),
+  amount        numeric(14, 2) not null check (amount > 0),
+  category_id   text,
+  day_of_month  integer,
+  next_run_date date not null,
+  active        boolean not null default true,
+  note          text,
+  created_at    timestamptz not null default now()
+);
+create index if not exists recurring_rules_user_id_idx on public.recurring_rules (user_id);
+create index if not exists recurring_rules_next_run_date_idx on public.recurring_rules (next_run_date) where active;
+
+-- Daily Tabs (Mess, Milk, Attendance, Habits)
+create table if not exists public.daily_tabs (
+  id                  uuid primary key default gen_random_uuid(),
+  user_id             uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  name                text not null,
+  category_type       text not null default 'custom',
+  color               text not null default '#3b82f6',
+  icon                text not null default 'lucide:calendar',
+  currency            text not null default 'USD',
+  unit_price          numeric(14, 2) not null default 0,
+  unit_label          text not null default 'unit',
+  default_wallet_id   text,
+  default_category_id text,
+  slots               jsonb,
+  created_at          timestamptz not null default now()
+);
+create index if not exists daily_tabs_user_id_idx on public.daily_tabs (user_id);
+
+create table if not exists public.daily_tab_logs (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  tab_id      uuid not null references public.daily_tabs (id) on delete cascade,
+  date        text not null,
+  total_units numeric(14, 2) not null default 0,
+  slots       jsonb,
+  note        text,
+  updated_at  timestamptz not null default now()
+);
+create index if not exists daily_tab_logs_user_id_idx on public.daily_tab_logs (user_id);
+create index if not exists daily_tab_logs_tab_date_idx on public.daily_tab_logs (tab_id, date);
+
+create table if not exists public.daily_tab_settlements (
+  id            text primary key,
+  user_id       uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  tab_id        uuid not null references public.daily_tabs (id) on delete cascade,
+  year_month    text not null,
+  total_amount  numeric(14, 2) not null default 0,
+  total_units   numeric(14, 2),
+  wallet_id     text,
+  category_id   text,
+  trn_id        text,
+  settled_at    bigint not null,
+  created_at    timestamptz not null default now()
+);
+create index if not exists daily_tab_settlements_user_idx on public.daily_tab_settlements (user_id);
+create index if not exists daily_tab_settlements_tab_idx on public.daily_tab_settlements (tab_id);
+
+-- Push Subscriptions (Web Push / PWA)
+create table if not exists public.push_subscriptions (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users (id) on delete cascade default auth.uid(),
+  endpoint    text not null,
+  keys        jsonb not null,
+  created_at  timestamptz not null default now()
+);
+create index if not exists push_subscriptions_user_idx on public.push_subscriptions (user_id);
+
+-- 3. ROW LEVEL SECURITY (RLS)
+-- ---------------------------------------------------------------------------
+alter table public.categories             enable row level security;
+alter table public.wallets                enable row level security;
+alter table public.trns                   enable row level security;
+alter table public.user_settings          enable row level security;
+alter table public.rates                  enable row level security;
+alter table public.people                 enable row level security;
+alter table public.lending_entries        enable row level security;
+alter table public.lending_repayments     enable row level security;
+alter table public.recurring_rules        enable row level security;
+alter table public.daily_tabs             enable row level security;
+alter table public.daily_tab_logs         enable row level security;
+alter table public.daily_tab_settlements  enable row level security;
+alter table public.push_subscriptions     enable row level security;
 
 -- Drop existing policies if re-running
 drop policy if exists "categories_owner" on public.categories;
@@ -81,7 +205,16 @@ drop policy if exists "wallets_owner" on public.wallets;
 drop policy if exists "trns_owner" on public.trns;
 drop policy if exists "user_settings_owner" on public.user_settings;
 drop policy if exists "rates_read" on public.rates;
+drop policy if exists "people_owner" on public.people;
+drop policy if exists "lending_entries_owner" on public.lending_entries;
+drop policy if exists "lending_repayments_owner" on public.lending_repayments;
+drop policy if exists "recurring_rules_owner" on public.recurring_rules;
+drop policy if exists "daily_tabs_owner" on public.daily_tabs;
+drop policy if exists "daily_tab_logs_owner" on public.daily_tab_logs;
+drop policy if exists "daily_tab_settlements_owner" on public.daily_tab_settlements;
+drop policy if exists "push_subscriptions_owner" on public.push_subscriptions;
 
+-- Core Policies
 create policy "categories_owner" on public.categories for all to authenticated
   using ((select auth.uid())::text = "userId")
   with check ((select auth.uid())::text = "userId");
@@ -101,7 +234,41 @@ create policy "user_settings_owner" on public.user_settings for all to authentic
 create policy "rates_read" on public.rates for select to authenticated
   using (true);
 
--- 3. Automatic User Settings on Signup Trigger
+-- Extended Feature Policies
+create policy "people_owner" on public.people for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+create policy "lending_entries_owner" on public.lending_entries for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+create policy "lending_repayments_owner" on public.lending_repayments for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+create policy "recurring_rules_owner" on public.recurring_rules for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+create policy "daily_tabs_owner" on public.daily_tabs for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+create policy "daily_tab_logs_owner" on public.daily_tab_logs for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+create policy "daily_tab_settlements_owner" on public.daily_tab_settlements for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+create policy "push_subscriptions_owner" on public.push_subscriptions for all to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
+
+-- 4. AUTOMATIC USER SETTINGS ON SIGNUP TRIGGER
+-- ---------------------------------------------------------------------------
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -121,7 +288,8 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
--- 4. PowerSync Replication Role
+-- 5. POWERSYNC REPLICATION ROLE & PUBLICATION
+-- ---------------------------------------------------------------------------
 do $$
 begin
   if not exists (select 1 from pg_roles where rolname = 'powersync_role') then
@@ -136,7 +304,6 @@ grant usage on schema public to powersync_role;
 grant select on all tables in schema public to powersync_role;
 alter default privileges in schema public grant select on tables to powersync_role;
 
--- 5. PowerSync Publication
 drop publication if exists powersync;
 create publication powersync for table
   public.categories,
@@ -144,3 +311,30 @@ create publication powersync for table
   public.trns,
   public.user_settings,
   public.rates;
+
+-- 6. SUPABASE REALTIME (Instant Live Updates Across Devices)
+-- ---------------------------------------------------------------------------
+do $$
+declare
+  t text;
+begin
+  for t in select unnest(array[
+    'people',
+    'lending_entries',
+    'lending_repayments',
+    'recurring_rules',
+    'daily_tabs',
+    'daily_tab_logs',
+    'daily_tab_settlements'
+  ])
+  loop
+    if exists (select 1 from pg_tables where schemaname = 'public' and tablename = t) and
+       not exists (
+         select 1 from pg_publication_tables
+         where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t
+       ) then
+      execute format('alter publication supabase_realtime add table public.%I', t);
+    end if;
+  end loop;
+end;
+$$;

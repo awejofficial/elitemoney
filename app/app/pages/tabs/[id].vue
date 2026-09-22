@@ -14,8 +14,17 @@ const currenciesStore = useCurrenciesStore()
 const walletsStore = useWalletsStore()
 const categoriesStore = useCategoriesStore()
 
-const tabId = computed(() => route.params.id as string)
+const tabId = computed(() => {
+  const raw = route.params.id as string
+  return tabsStore.legacyIdMap[raw] || raw
+})
 const tab = computed(() => tabsStore.tabs[tabId.value])
+
+watch(tabId, (newId) => {
+  if (newId && newId !== route.params.id) {
+    router.replace(`/tabs/${newId}`)
+  }
+}, { immediate: true })
 
 useSeoMeta({
   title: computed(() => `${tab.value?.name || 'Daily Tab'} — EliteMoney`),

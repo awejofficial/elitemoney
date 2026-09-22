@@ -10,10 +10,19 @@ const { t } = useI18n()
 const peopleStore = usePeopleStore()
 const currenciesStore = useCurrenciesStore()
 
-const personId = computed(() => route.params.id as string)
-const person = computed(() => peopleStore.people[personId.value])
+const personId = computed(() => {
+  const raw = route.params.id as string
+  return peopleStore.legacyIdMap[raw] || raw
+})
+const person = computed(() => peopleStore.findPerson(personId.value))
 const personBalance = computed(() => peopleStore.balances[personId.value])
 const entries = computed(() => peopleStore.getEntriesForPerson(personId.value))
+
+watch(personId, (newId) => {
+  if (newId && newId !== route.params.id) {
+    router.replace(`/people/${newId}`)
+  }
+}, { immediate: true })
 
 useSeoMeta({
   title: computed(() => `${person.value?.name || 'Contact'} — EliteMoney`),

@@ -248,6 +248,9 @@ export default defineNuxtConfig({
   telemetry: false,
 
   vite: {
+    build: {
+      modulePreload: false,
+    },
     optimizeDeps: {
       // @powersync/web ships web workers + WASM that must not be pre-bundled.
       exclude: ['@powersync/web'],
