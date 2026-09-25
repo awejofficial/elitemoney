@@ -13,11 +13,16 @@ export default defineNuxtConfig({
       link: [
         { href: '/favicon.svg', rel: 'icon', type: 'image/svg+xml' },
         { href: '/favicon.png', rel: 'icon', type: 'image/png' },
+        { href: 'https://elitemoney.vercel.app/', rel: 'canonical' },
       ],
       meta: [
+        { content: '3AuXlYMcm93IQntetY_iCQqFXqb9_MTQFkBb-Nbo06g', name: 'google-site-verification' },
         { content: 'EliteMoney — Personal Finance & Expense Tracker. Track expenses, manage wallets, analyze spending, manage lending and recurring transactions.', name: 'description' },
+        { content: 'EliteMoney, elitemoney, personal finance tracker, expense tracker, budget app, offline finance', name: 'keywords' },
+        { content: 'index, follow', name: 'robots' },
         { content: 'EliteMoney — Personal Finance Tracker', property: 'og:title' },
         { content: 'EliteMoney gives you complete control over your finances with smart wallets, recurring transactions, lending management, and secure biometric access.', property: 'og:description' },
+        { content: 'https://elitemoney.vercel.app/', property: 'og:url' },
         { content: 'website', property: 'og:type' },
         { content: 'EliteMoney', property: 'og:site_name' },
         { content: 'summary_large_image', name: 'twitter:card' },
