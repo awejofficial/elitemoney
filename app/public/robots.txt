@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Allow: /login
+
+Sitemap: https://elitemoney.vercel.app/sitemap.xml

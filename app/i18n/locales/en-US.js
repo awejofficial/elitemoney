@@ -322,7 +322,7 @@ export default {
   },
 
   login: {
-    description: 'Powerful open-source finance application',
+    description: 'Your finances. Your data. Your control.',
     error: 'Login failed. Please try again.',
     menu: {
       documentation: 'Documentation',
